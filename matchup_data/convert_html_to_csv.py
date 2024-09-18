@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 # User Input
-WEEK = 1
+WEEK = 2
 
 class Player:
     def __init__(self, name, position, fan_pts):
@@ -12,7 +12,10 @@ class Player:
         self.fan_pts = fan_pts
 
 def convert_league_matchup_table_to_csv():
-    try:
+    if os.path.exists(f"matchup_data/week{WEEK}/matchups.csv"):
+            print(f"csv for matchups already exists")
+    else:
+      try:
         with open(F'matchup_data/week{WEEK}/week{WEEK}_matchups.html') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
 
@@ -26,14 +29,24 @@ def convert_league_matchup_table_to_csv():
             winner = team2 if team2_score > team1_score else team1
             row = [team1, team1_score, team2, team2_score, winner]
             matchup_df.loc[len(matchup_df)] = row
-
         matchup_df.to_csv(f"matchup_data/week{WEEK}/matchup.csv")
+        print("created matchups csv")
     except:
         print(f"Week {WEEK} matchups html not available")
+        
+
+def extract_position(text):
+    try:
+        text = text.split("-")[1].split(" ")[1]
+    except:
+        pass
+    return text
 
 def clean_matchup_df(df):
     df.drop(['Stats', 'Stats.1'], axis=1, inplace=True)
+    df["Position"] = df["Player"].apply(lambda x: extract_position(x))
     df["Player"] = df["Player"].apply(lambda x: str(x).split("-")[0])
+    df["Position.1"] = df["Player.1"].apply(lambda x: extract_position(x))
     df["Player.1"] = df["Player.1"].apply(lambda x: str(x).split("-")[0])
     return df
 
@@ -43,27 +56,27 @@ def convert_detailed_matchup_to_csv():
             print(f"csv for week {WEEK} matchup {i} already exists")
             continue
         else:
-            try:
-                with open(F'matchup_data/week{WEEK}/matchup_{i}.html') as fp:
-                    soup = BeautifulSoup(fp, 'html.parser')
+           try:
+            with open(F'matchup_data/week{WEEK}/matchup_{i}.html') as fp:
+                soup = BeautifulSoup(fp, 'html.parser')
 
-                matchup_header = soup.find("section", {"id": "matchup-header"})
-                team1 = matchup_header.find_all('div')[6].text
-                team2 = matchup_header.find_all('div')[19].text
-
-                matchup_df = pd.read_html(f'matchup_data/week{WEEK}/matchup_1.html')
-                starter_matchup_df = clean_matchup_df(matchup_df[1])
-                bench_matchup_df = clean_matchup_df(matchup_df[2])
-                combined_df = pd.concat([starter_matchup_df, bench_matchup_df], ignore_index=True)
-                combined_df = combined_df.rename(columns={"Player": team1, "Player.1": team2})
-                combined_df[[team1, "Fan Pts", "Pos", "Fan Pts.1", team2]].to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
-            except:
-                print(f"Week {WEEK} matchup {i} html not available")
+            matchup_header = soup.find("section", {"id": "matchup-header"})
+            team1 = matchup_header.find_all('div')[6].text
+            team2 = matchup_header.find_all('div')[19].text
+            
+            matchup_df = pd.read_html(f'matchup_data/week{WEEK}/matchup_1.html')
+            starter_matchup_df = clean_matchup_df(matchup_df[1])
+            bench_matchup_df = clean_matchup_df(matchup_df[2])
+            combined_df = pd.concat([starter_matchup_df, bench_matchup_df], ignore_index=True)
+            combined_df = combined_df.rename(columns={"Player": team1, "Player.1": team2, "Pos": "Roster Pos"})
+            combined_df[[team1, "Position", "Fan Pts", "Roster Pos", "Fan Pts.1", "Position.1", team2]].to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
+            print(f"created csv for matchup {i}")
+           except:
+            print(f"Week {WEEK} matchup {i} html not available")
 
 def main():
     convert_league_matchup_table_to_csv()
     convert_detailed_matchup_to_csv()
-
 
 if __name__ == "__main__":
     main()
