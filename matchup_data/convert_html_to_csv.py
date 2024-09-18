@@ -12,6 +12,17 @@ class Player:
         self.position = position
         self.fan_pts = fan_pts
 
+    def is_flex(self):
+        match self.position:
+            case "WR":
+                return True
+            case "TE":
+                return True
+            case "RB":
+                return True
+            case _:
+                return False
+
 def convert_league_matchup_table_to_csv():
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
     if os.path.exists(f"matchup_data/week{WEEK}/matchups.csv"):
