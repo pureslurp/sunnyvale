@@ -6,12 +6,14 @@ import os
 WEEK = 1
 
 class Player:
+    '''Placeholder for a Player class to be used with the to be created Roster class'''
     def __init__(self, name, position, fan_pts):
         self.name = name
         self.position = position
         self.fan_pts = fan_pts
 
 def convert_league_matchup_table_to_csv():
+    '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
     if os.path.exists(f"matchup_data/week{WEEK}/matchups.csv"):
             print(f"csv for matchups already exists")
     else:
@@ -36,6 +38,7 @@ def convert_league_matchup_table_to_csv():
         
 
 def extract_position(text):
+    '''function that extracts the position from Yahoo player html'''
     try:
         text = text.split("-")[1].split(" ")[1]
     except:
@@ -43,6 +46,7 @@ def extract_position(text):
     return text
 
 def clean_matchup_df(df):
+    '''cleans up the Yahoo html table by removing unneeded columns and linting player data'''
     df.drop(['Stats', 'Stats.1'], axis=1, inplace=True)
     df["Position"] = df["Player"].apply(lambda x: extract_position(x))
     df["Player"] = df["Player"].apply(lambda x: str(x).split("-")[0])
@@ -51,6 +55,7 @@ def clean_matchup_df(df):
     return df
 
 def convert_detailed_matchup_to_csv():
+    '''covert each matchup (matchup_{i}.html) to a user friendly csv table'''
     for i in range(1,7):
         if os.path.exists(f"matchup_data/week{WEEK}/matchup_{i}.csv"):
             print(f"csv for week {WEEK} matchup {i} already exists")
