@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 # User Input
-WEEK = 2
+WEEK = 1
 
 class Player:
     def __init__(self, name, position, fan_pts):
@@ -15,24 +15,24 @@ def convert_league_matchup_table_to_csv():
     if os.path.exists(f"matchup_data/week{WEEK}/matchups.csv"):
             print(f"csv for matchups already exists")
     else:
-      try:
-        with open(F'matchup_data/week{WEEK}/week{WEEK}_matchups.html') as fp:
-            soup = BeautifulSoup(fp, 'html.parser')
+        try:
+            with open(F'matchup_data/week{WEEK}/week{WEEK}_matchups.html') as fp:
+                soup = BeautifulSoup(fp, 'html.parser')
 
-        matchup_df = pd.DataFrame(columns=["Team1", "Team1 Score", "Team2", "Team2 Score", "Winner"])
+            matchup_df = pd.DataFrame(columns=["Team1", "Team1 Score", "Team2", "Team2 Score", "Winner"])
 
-        for matchup in soup.find_all('li'):
-            team1 = matchup.find_all('a')[1].text
-            team1_score = float(matchup.find_all('div')[11].text)
-            team2 = matchup.find_all('a')[4].text
-            team2_score = float(matchup.find_all('div')[18].text)
-            winner = team2 if team2_score > team1_score else team1
-            row = [team1, team1_score, team2, team2_score, winner]
-            matchup_df.loc[len(matchup_df)] = row
-        matchup_df.to_csv(f"matchup_data/week{WEEK}/matchup.csv")
-        print("created matchups csv")
-    except:
-        print(f"Week {WEEK} matchups html not available")
+            for matchup in soup.find_all('li'):
+                team1 = matchup.find_all('a')[1].text
+                team1_score = float(matchup.find_all('div')[11].text)
+                team2 = matchup.find_all('a')[4].text
+                team2_score = float(matchup.find_all('div')[18].text)
+                winner = team2 if team2_score > team1_score else team1
+                row = [team1, team1_score, team2, team2_score, winner]
+                matchup_df.loc[len(matchup_df)] = row
+            matchup_df.to_csv(f"matchup_data/week{WEEK}/matchup.csv")
+            print("created matchups csv")
+        except:
+            print(f"Week {WEEK} matchups html not available")
         
 
 def extract_position(text):
