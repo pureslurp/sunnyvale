@@ -15,6 +15,7 @@ def convert_league_matchup_table_to_csv():
     if os.path.exists(f"matchup_data/week{WEEK}/matchups.csv"):
             print(f"csv for matchups already exists")
     else:
+      try:
         with open(F'matchup_data/week{WEEK}/week{WEEK}_matchups.html') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
 
@@ -28,9 +29,11 @@ def convert_league_matchup_table_to_csv():
             winner = team2 if team2_score > team1_score else team1
             row = [team1, team1_score, team2, team2_score, winner]
             matchup_df.loc[len(matchup_df)] = row
-
-        matchup_df.to_csv(f"matchup_data/week{WEEK}/matchups.csv")
+        matchup_df.to_csv(f"matchup_data/week{WEEK}/matchup.csv")
         print("created matchups csv")
+    except:
+        print(f"Week {WEEK} matchups html not available")
+        
 
 def extract_position(text):
     try:
@@ -49,20 +52,18 @@ def clean_matchup_df(df):
 
 def convert_detailed_matchup_to_csv():
     for i in range(1,7):
-        current_directory = os.getcwd()
-        entries = os.listdir(current_directory)
         if os.path.exists(f"matchup_data/week{WEEK}/matchup_{i}.csv"):
-            print(f"csv for matchup {i} already exists")
+            print(f"csv for week {WEEK} matchup {i} already exists")
             continue
         else:
-            # try:
+           try:
             with open(F'matchup_data/week{WEEK}/matchup_{i}.html') as fp:
                 soup = BeautifulSoup(fp, 'html.parser')
 
             matchup_header = soup.find("section", {"id": "matchup-header"})
             team1 = matchup_header.find_all('div')[6].text
             team2 = matchup_header.find_all('div')[19].text
-
+            
             matchup_df = pd.read_html(f'matchup_data/week{WEEK}/matchup_1.html')
             starter_matchup_df = clean_matchup_df(matchup_df[1])
             bench_matchup_df = clean_matchup_df(matchup_df[2])
@@ -70,8 +71,8 @@ def convert_detailed_matchup_to_csv():
             combined_df = combined_df.rename(columns={"Player": team1, "Player.1": team2, "Pos": "Roster Pos"})
             combined_df[[team1, "Position", "Fan Pts", "Roster Pos", "Fan Pts.1", "Position.1", team2]].to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
             print(f"created csv for matchup {i}")
-            # except:
-            #     print(f"Matchup {i} not available")
+           except:
+            print(f"Week {WEEK} matchup {i} html not available")
 
 def main():
     convert_league_matchup_table_to_csv()
