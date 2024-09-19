@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+from utils import team_abbrev
 
 # User Input
 WEEK = 2
@@ -56,13 +57,25 @@ def extract_position(text):
         pass
     return text
 
+def extract_player_name(text):
+    text = str(text).split("-")[0].strip()
+    if text[-2:].upper() in team_abbrev:
+        player = text[:-2]
+    elif text[-3:].upper() in team_abbrev:
+        player = text[:-3]
+    else:
+        player = text
+    return player
+        
+
+
 def clean_matchup_df(df):
     '''cleans up the Yahoo html table by removing unneeded columns and linting player data'''
     df.drop(['Stats', 'Stats.1'], axis=1, inplace=True)
     df["Position"] = df["Player"].apply(lambda x: extract_position(x))
-    df["Player"] = df["Player"].apply(lambda x: str(x).split("-")[0])
+    df["Player"] = df["Player"].apply(lambda x: extract_player_name(x))
     df["Position.1"] = df["Player.1"].apply(lambda x: extract_position(x))
-    df["Player.1"] = df["Player.1"].apply(lambda x: str(x).split("-")[0])
+    df["Player.1"] = df["Player.1"].apply(lambda x: extract_player_name(x))
     return df
 
 def convert_detailed_matchup_to_csv():
