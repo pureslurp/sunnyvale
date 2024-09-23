@@ -52,7 +52,7 @@ def convert_league_matchup_table_to_csv():
 def extract_position(text):
     '''function that extracts the position from Yahoo player html'''
     try:
-        text = text.split("-")[1].split(" ")[1]
+        text = text.split(" - ")[1].split(" ")[0]
     except:
         pass
     return text
