@@ -209,7 +209,6 @@ def convert_detailed_matchup_to_csv():
                 team_2_cols = ["Player.1", "Fan Pts.1", "Proj.1"]
                 team_2_roster = Roster(team2, matchup_df[1][team_2_cols], matchup_df[2][team_2_cols])
                 matchup = MatchUp(team_1_roster, team_2_roster)
-                matchup.dataframe_for_csv
                 combined_df = matchup.dataframe_for_csv
                 combined_df.to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
                 print(f"created csv for matchup {i}")
