@@ -2,9 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import os
 from utils import team_abbrev
-
-# User Input
-WEEK = 2
+import argparse
 
 class Player:
     '''Placeholder for a Player class to be used with the to be created Roster class'''
@@ -24,13 +22,13 @@ class Player:
             case _:
                 return False
 
-def convert_league_matchup_table_to_csv():
+def convert_league_matchup_table_to_csv(week):
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
-    if os.path.exists(f"matchup_data/week{WEEK}/matchups.csv"):
+    if os.path.exists(f"matchup_data/week{week}/matchups.csv"):
             print(f"csv for matchups already exists")
     else:
         try:
-            with open(F'matchup_data/week{WEEK}/week{WEEK}_matchups.html') as fp:
+            with open(F'matchup_data/week{week}/week{week}_matchups.html') as fp:
                 soup = BeautifulSoup(fp, 'html.parser')
 
             matchup_df = pd.DataFrame(columns=["Team1", "Team1 Score", "Team2", "Team2 Score", "Winner"])
@@ -43,10 +41,10 @@ def convert_league_matchup_table_to_csv():
                 winner = team2 if team2_score > team1_score else team1
                 row = [team1, team1_score, team2, team2_score, winner]
                 matchup_df.loc[len(matchup_df)] = row
-            matchup_df.to_csv(f"matchup_data/week{WEEK}/matchup.csv")
+            matchup_df.to_csv(f"matchup_data/week{week}/matchup.csv")
             print("created matchups csv")
         except:
-            print(f"Week {WEEK} matchups html not available")
+            print(f"Week {week} matchups html not available")
         
 
 def extract_position(text):
@@ -78,34 +76,36 @@ def clean_matchup_df(df):
     df["Player.1"] = df["Player.1"].apply(lambda x: extract_player_name(x))
     return df
 
-def convert_detailed_matchup_to_csv():
+def convert_detailed_matchup_to_csv(week):
     '''covert each matchup (matchup_{i}.html) to a user friendly csv table'''
     for i in range(1,7):
-        if os.path.exists(f"matchup_data/week{WEEK}/matchup_{i}.csv"):
-            print(f"csv for week {WEEK} matchup {i} already exists")
+        if os.path.exists(f"matchup_data/week{week}/matchup_{i}.csv"):
+            print(f"csv for week {week} matchup {i} already exists")
             continue
         else:
             try:
-                with open(F'matchup_data/week{WEEK}/matchup_{i}.html') as fp:
+                with open(F'matchup_data/week{week}/matchup_{i}.html') as fp:
                     soup = BeautifulSoup(fp, 'html.parser')
 
                 matchup_header = soup.find("section", {"id": "matchup-header"})
                 team1 = matchup_header.find_all('div')[6].text
                 team2 = matchup_header.find_all('div')[19].text
-                
-                matchup_df = pd.read_html(f'matchup_data/week{WEEK}/matchup_{i}.html')
+                matchup_df = pd.read_html(f'matchup_data/week{week}/matchup_{i}.html')
                 starter_matchup_df = clean_matchup_df(matchup_df[1])
                 bench_matchup_df = clean_matchup_df(matchup_df[2])
                 combined_df = pd.concat([starter_matchup_df, bench_matchup_df], ignore_index=True)
                 combined_df = combined_df.rename(columns={"Player": team1, "Player.1": team2, "Pos": "Roster Pos"})
-                combined_df[[team1, "Position", "Fan Pts", "Roster Pos", "Fan Pts.1", "Position.1", team2]].to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
+                combined_df[[team1, "Position", "Fan Pts", "Roster Pos", "Fan Pts.1", "Position.1", team2]].to_csv(f"matchup_data/week{week}/matchup_{i}.csv")
                 print(f"created csv for matchup {i}")
             except:
-                print(f"Week {WEEK} matchup {i} html not available")
+                print(f"Week {week} matchup {i} html not available")
 
 def main():
-    convert_league_matchup_table_to_csv()
-    convert_detailed_matchup_to_csv()
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument("week", type=int, help="NFL Week")
+    args = argParser.parse_args()
+    convert_league_matchup_table_to_csv(args.week)
+    convert_detailed_matchup_to_csv(args.week)
 
 if __name__ == "__main__":
     main()
