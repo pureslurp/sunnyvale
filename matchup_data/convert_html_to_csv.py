@@ -7,12 +7,18 @@ from utils import team_abbrev
 WEEK = 2
 
 class Player:
-    '''Placeholder for a Player class to be used with the to be created Roster class'''
-    def __init__(self, name, position, fan_pts):
-        self.name = name
-        self.position = position
+    '''Placeholder for a Player class to be used with the to be created Roster class
+    
+    This class is only representative of a Player during the week specified.
+    '''
+    def __init__(self, name_position_team:str, fan_pts:float, proj_pts:float):
+        self.name = extract_player_name(name_position_team)
+        self.position = extract_position(name_position_team)
         self.fan_pts = fan_pts
+        self.proj_pts = proj_pts
+        self.team = extract_team(name_position_team)
 
+    @property
     def is_flex(self):
         match self.position:
             case "WR":
@@ -23,6 +29,104 @@ class Player:
                 return True
             case _:
                 return False
+    
+    @property
+    def net_points(self):
+        return self.proj_pts - self.fan_pts
+    
+    def __str__(self):
+        return f"{self.name}, {self.position}, {self.team}"
+
+class Roster:
+    '''A given teams Roster and their stats for a particular week, constructed from html'''
+    def __init__(self, team_name: str, starting_df: pd.DataFrame, bench_df: pd.DataFrame):
+        '''df's column must be in the following order:
+        |Player|Proj|Fan Pts|
+        '''
+        roster_key = {
+            "QB" : 0,
+            "WR1" : 1,
+            "WR2" : 2,
+            "RB1" : 3,
+            "RB2" : 4,
+            "TE" : 5,
+            "FLEX1" : 6,
+            "FLEX2" : 7,
+            "DEF" : 8,
+            "BN1" : 0,
+            "BN2" : 1,
+            "BN3" : 2,
+            "BN4" : 3,
+            "BN5" : 4,
+            "BN6" : 5,
+            "BN7" : 6,
+            "BN8" : 7
+        }
+        self.roster: dict[str, Player] = dict.fromkeys(list(roster_key.keys()))
+        for k, v in roster_key.items():
+            # (TODO) This is sketchy, there has to be a better way to do this...
+            try:
+                self.roster[k] = Player(name_position_team=starting_df.iloc[v,0], fan_pts=starting_df.iloc[v,2], proj_pts=starting_df.iloc[v,1])
+            except:
+                self.roster[k] = Player(name_position_team=bench_df.iloc[v,0], fan_pts=bench_df.iloc[v,2], proj_pts=bench_df.iloc[v,1])
+        self.team_name = team_name
+    
+    @property
+    def starting_points(self):
+        starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
+        total = 0
+        for pos in starting_lineup:
+            total += self.roster[pos].fan_pts
+        return total
+
+    @property
+    def bench_points(self):
+        bench_lineup = ["BN1", "BN2", "BN3", "BN4", "BN5", "BN6", "BN7", "BN8"]
+        total = 0
+        for pos in bench_lineup:
+            total += self.roster[pos].fan_pts
+        return total
+    
+    def manager_eff(self):
+        # NICK THIS IS WHERE YOU WORK YOUR MAGIC
+        return
+
+    def __str__(self):
+        for key in self.roster:
+            print(self.roster[key])
+        return
+
+class MatchUp:
+    def __init__(self, team1_roster: Roster, team2_roster: Roster):
+        self.team1_roster = team1_roster
+        self.team2_roster = team2_roster
+    
+    @property
+    def winner(self):
+        return self.team1_roster.team_name if self.team1_roster.starting_points > self.team2_roster.starting_points else self.team2_roster.team_name
+    
+    @property
+    def dataframe_for_csv(self):
+        columns = [self.team1_roster.team_name, "Position", "Fan Pts", "Roster Position", "Fan Pts.1", "Position.1", self.team2_roster.team_name]
+        starting_matchup_df = pd.DataFrame(columns=columns)
+        bench_matchup_df = pd.DataFrame(columns=columns)
+        roster_positions = ["QB", "WR", "WR", "RB", "RB", "W/R/T", "W/R/T", "TE", "DEF", "Total"]
+        for pos in range(len(roster_positions)):
+            if roster_positions[pos] == "Total":
+                row = [None, None, self.team1_roster.starting_points, roster_positions[pos], self.team2_roster.starting_points, None, None]
+            else:
+                team_1_player = list(self.team1_roster.roster.values())[pos]
+                team_2_player = list(self.team2_roster.roster.values())[pos]
+                row = [team_1_player.name, team_1_player.position, team_1_player.fan_pts, roster_positions[pos], team_2_player.fan_pts, team_2_player.position, team_2_player.name]
+            starting_matchup_df.loc[len(starting_matchup_df)] = row
+        for i in range(8):
+            team_1_player = list(self.team1_roster.roster.values())[i+9]
+            team_2_player = list(self.team2_roster.roster.values())[i+9]
+            row = [team_1_player.name, team_1_player.position, team_1_player.fan_pts, roster_positions[pos], team_2_player.fan_pts, team_2_player.position, team_2_player.name]
+            bench_matchup_df.loc[len(bench_matchup_df)] = row
+        bench_matchup_df.loc[len(bench_matchup_df)] = [None, None, self.team1_roster.bench_points, "Total", self.team2_roster.bench_points, None, None]
+        combined_df = pd.concat([starting_matchup_df, bench_matchup_df], ignore_index=True)
+        return combined_df
 
 def convert_league_matchup_table_to_csv():
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
@@ -66,7 +170,15 @@ def extract_player_name(text):
     else:
         player = text
     return player
-        
+
+def extract_team(text):
+    text = str(text).split("-")[0].strip()
+    if text[-2:].upper() in team_abbrev:
+        return text[-2:].upper()
+    elif text[-3:].upper() in team_abbrev:
+        return text[-3:].upper()
+    else:
+        return None
 
 
 def clean_matchup_df(df):
@@ -92,13 +204,14 @@ def convert_detailed_matchup_to_csv():
                 matchup_header = soup.find("section", {"id": "matchup-header"})
                 team1 = matchup_header.find_all('div')[6].text
                 team2 = matchup_header.find_all('div')[19].text
-                
                 matchup_df = pd.read_html(f'matchup_data/week{WEEK}/matchup_{i}.html')
-                starter_matchup_df = clean_matchup_df(matchup_df[1])
-                bench_matchup_df = clean_matchup_df(matchup_df[2])
-                combined_df = pd.concat([starter_matchup_df, bench_matchup_df], ignore_index=True)
-                combined_df = combined_df.rename(columns={"Player": team1, "Player.1": team2, "Pos": "Roster Pos"})
-                combined_df[[team1, "Position", "Fan Pts", "Roster Pos", "Fan Pts.1", "Position.1", team2]].to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
+                team_1_roster = Roster(team1, matchup_df[1].iloc[:,1:4], matchup_df[2].iloc[:,1:4])
+                team_2_cols = ["Player.1", "Fan Pts.1", "Proj.1"]
+                team_2_roster = Roster(team2, matchup_df[1][team_2_cols], matchup_df[2][team_2_cols])
+                matchup = MatchUp(team_1_roster, team_2_roster)
+                matchup.dataframe_for_csv
+                combined_df = matchup.dataframe_for_csv
+                combined_df.to_csv(f"matchup_data/week{WEEK}/matchup_{i}.csv")
                 print(f"created csv for matchup {i}")
             except:
                 print(f"Week {WEEK} matchup {i} html not available")
