@@ -300,6 +300,10 @@ def convert_detailed_matchup_to_csv(week):
                 matchup = MatchUp(team_1_roster, team_2_roster)
                 combined_df = matchup.dataframe_for_csv
                 combined_df.to_csv(f"matchup_data/week{week}/matchup_{i}.csv")
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin
                 print(f"created csv for matchup {i}")
             except:
                 print(f"Week {week} matchup {i} html not available")
