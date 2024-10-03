@@ -30,13 +30,14 @@ try:
 except:
     week = week_str
 
-st.subheader("League Summary")
 
 if week == "All":
+    st.subheader("League Summary")
     #stuff here
     st.write("League Summary for 'All' weeks coming soon. For now, select a week in the left pane")
     pass
 else:
+    st.subheader(f"League Summary -- {week}")
     league_summary = convert_league_matchup_table_to_df(week)
     st.write(league_summary)
 
