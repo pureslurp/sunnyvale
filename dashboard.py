@@ -34,29 +34,33 @@ st.subheader("League Summary")
 
 if week == "All":
     #stuff here
+    st.write("League Summary for 'All' weeks coming soon. For now, select a week in the left pane")
     pass
 else:
     league_summary = convert_league_matchup_table_to_df(week)
     st.write(league_summary)
 
-st.subheader("Advanced Analytics")
-st.markdown("- PF Rank: Points scored compared to other teams \n - PA Rank: Points against compared to other teams \n - H2H: Record if you played every person this week \n - Manager Efficiency: TODO")
+    st.subheader("Advanced Analytics")
+    st.markdown("- PF Rank: Points scored compared to other teams \n - PA Rank: Points against compared to other teams \n - H2H: Record if you played every person this week \n - Manager Efficiency: TODO")
 
-rosters = []
+    if week == "All":
+        #stuff here
+        pass
+    else:
+        rosters = []
+        for i in range(1,7):
+            try:
+                matchup = convert_detailed_matchup_to_df(week, i)
+                print(matchup)
+                rosters.append(matchup.team1_roster)
+                rosters.append(matchup.team2_roster)
+            except:
+                st.write("Issue grabbing matchup data, contact Nick Balavich")
+                break
 
-for i in range(1,7):
-    try:
-        matchup = convert_detailed_matchup_to_df(week, i)
-        print(matchup)
-        rosters.append(matchup.team1_roster)
-        rosters.append(matchup.team2_roster)
-    except:
-        st.write("Issue grabbing matchup data, contact Nick Balavich")
-        break
-
-league = League(rosters)
-df = league.advanced_df
-st.write(df)
+        league = League(rosters)
+        df = league.advanced_df
+        st.write(df)
 
 
     
