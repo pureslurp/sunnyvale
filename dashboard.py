@@ -52,7 +52,7 @@ for i in range(1,7):
         rosters.append(matchup.team2_roster)
     except:
         st.write("Issue grabbing matchup data, contact Nick Balavich")
-        continue
+        break
 
 league = League(rosters)
 df = league.advanced_df
