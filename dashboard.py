@@ -48,6 +48,7 @@ rosters = []
 for i in range(1,7):
     try:
         matchup = convert_detailed_matchup_to_df(week, i)
+        print(matchup)
         rosters.append(matchup.team1_roster)
         rosters.append(matchup.team2_roster)
     except:
