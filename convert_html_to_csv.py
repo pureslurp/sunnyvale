@@ -311,9 +311,12 @@ def convert_detailed_matchup_to_df(week, i):
         team1 = matchup_header.find_all('div')[6].text
         team2 = matchup_header.find_all('div')[19].text
         matchup_df = pd.read_html(f'matchup_data/week{week}/matchup_{i}.html')
+        print("read html")
         team_1_roster = Roster(team1, matchup_df[1].iloc[:,1:4], matchup_df[2].iloc[:,1:4])
+        print("roster1")
         team_2_cols = ["Player.1", "Proj.1", "Fan Pts.1"]
         team_2_roster = Roster(team2, matchup_df[1][team_2_cols], matchup_df[2][team_2_cols])
+        print("roster2")
         matchup = MatchUp(team_1_roster, team_2_roster)
         return matchup
     except:
