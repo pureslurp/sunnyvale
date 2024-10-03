@@ -306,9 +306,7 @@ def convert_detailed_matchup_to_df(week, i):
     try:
         with open(F'matchup_data/week{week}/matchup_{i}.html') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
-        print("working")
         matchup_header = soup.find("section", {"id": "matchup-header"})
-        print("working")
         team1 = matchup_header.find_all('div')[6].text
         team2 = matchup_header.find_all('div')[19].text
         print(team1, team2)
@@ -321,7 +319,7 @@ def convert_detailed_matchup_to_df(week, i):
         matchup = MatchUp(team_1_roster, team_2_roster)
         return matchup
     except:
-        print("issue creating df for week ", week, " matchup ", i)
+        print("issue creating df for week", week, " matchup", i)
         return
 
 def main():
