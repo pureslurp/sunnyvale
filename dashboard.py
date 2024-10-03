@@ -1,6 +1,7 @@
 import streamlit as st
 from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, League, Roster, MatchUp
 from bs4 import BeautifulSoup
+import pandas as pd
 
 def convert_detailed_matchup_to_df_test(week, i):
     '''covert each matchup (matchup_{i}.html) to a user friendly csv table'''
