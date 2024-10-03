@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
-from matchup_data.utils import team_abbrev
+from utils import team_abbrev
 import argparse
 
 class Player:

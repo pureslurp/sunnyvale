@@ -1,21 +1,20 @@
-,EZ DubZ,Position,Fan Pts,Roster Pos,Fan Pts.1,Position.1,Gales
+,EZ DubZ,Position,Fan Pts,Roster Position,Fan Pts.1,Position.1,Gales
 0,J. Burrow,QB,20.28,QB,26.5,QB,C. Stroud
 1,T. Hill,WR,8.2,WR,7.8,WR,G. Dortch
 2,J. Williams,WR,19.0,WR,15.0,WR,C. Sutton
 3,R. White,RB,10.4,RB,11.4,RB,B. Robinson
 4,J. Mason,RB,27.0,RB,5.8,RB,J. Cook
-5,G. Kittle,TE,14.5,TE,9.7,TE,D. Kincaid
+5,G. Kittle,TE,14.5,W/R/T,9.7,TE,D. Kincaid
 6,D. Samuel Sr.,WR,10.2,W/R/T,6.4,TE,D. Schultz
-7,L. McConkey,WR,17.7,W/R/T,7.4,RB,S. Perine
+7,L. McConkey,WR,17.7,TE,7.4,RB,S. Perine
 8,San Francisco,DEF,22.0,DEF,2.0,DEF,Pittsburgh
-9,nan,,149.28,Total,92.0,,nan
-10,D. Swift,RB,29.5,BN,0.00,WR,T. Dell
-11,H. Henry,TE,3.2,BN,0.00,RB,A. Ekeler
-12,I. Pacheco,RB,0.0,BN,0.00,WR,D. Adams
-13,M. Williams,WR,10.7,BN,0.00,RB,B. Corum
-14,J. Polk,WR,6.0,BN,1.00,WR,A. Mitchell
-15,T. Bigsby,RB,9.0,BN,0.00,RB,K. Vidal
-16,D. Robinson,WR,5.7,BN,8.52,QB,K. Cousins
-17,B. Mayfield,QB,31.88,BN,12.20,WR,J. Whittington
-18,R. Pearsall,WR,0.0,IR,â,(Empty),(Empty)
-19,nan,,95.98,Total,21.72,,nan
+9,,,149.28,Total,92.00000000000001,,
+10,J. Burrow,QB,20.28,Total,26.5,QB,C. Stroud
+11,T. Hill,WR,8.2,Total,7.8,WR,G. Dortch
+12,J. Williams,WR,19.0,Total,15.0,WR,C. Sutton
+13,R. White,RB,10.4,Total,11.4,RB,B. Robinson
+14,J. Mason,RB,27.0,Total,5.8,RB,J. Cook
+15,G. Kittle,TE,14.5,Total,9.7,TE,D. Kincaid
+16,D. Samuel Sr.,WR,10.2,Total,6.4,TE,D. Schultz
+17,L. McConkey,WR,17.7,Total,7.4,RB,S. Perine
+18,,,127.28,Total,90.00000000000001,,
