@@ -309,10 +309,7 @@ def convert_detailed_matchup_to_df(week, i):
         matchup_header = soup.find("section", {"id": "matchup-header"})
         team1 = matchup_header.find_all('div')[6].text
         team2 = matchup_header.find_all('div')[19].text
-        print(team1, team2)
-        print(f'matchup_data/week{week}/matchup_{i}.html')
         matchup_df = pd.read_html(f'matchup_data/week{week}/matchup_{i}.html')
-        print(matchup_df[1].head())
         team_1_roster = Roster(team1, matchup_df[1].iloc[:,1:4], matchup_df[2].iloc[:,1:4])
         team_2_cols = ["Player.1", "Proj.1", "Fan Pts.1"]
         team_2_roster = Roster(team2, matchup_df[1][team_2_cols], matchup_df[2][team_2_cols])
