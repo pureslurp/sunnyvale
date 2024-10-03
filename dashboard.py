@@ -24,7 +24,7 @@ st.markdown(md)
 # Create for Week
 st.sidebar.header("Week")
 week_list = ["All"] + [f"Week {x}" for x in range(1,5)]
-week_str = st.sidebar.selectbox("Pick your Week", week_list, index=len(week_list))
+week_str = st.sidebar.selectbox("Pick your Week", week_list, index=4)
 try:    
     week = int(week_str[4:])
 except:
