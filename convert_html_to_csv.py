@@ -69,6 +69,7 @@ class Roster:
                 self.roster[k] = Player(name_position_team=bench_df.iloc[v,0], fan_pts=bench_df.iloc[v,2], proj_pts=bench_df.iloc[v,1])
         self.team_name = team_name
         self.pf_rank = None
+        self.h2h_record: str = ""
     
     @property
     def starting_points(self):
@@ -233,11 +234,18 @@ class League:
         return self
     
     @property
-    def advanced_df(self):
+    def get_h2h_record(self):
         self.get_pf_rankings
-        advanced_df = pd.DataFrame(columns=["Team", "PF Rank", "PA Rank", "H2H", "Manager Eff"])
+        for i in range(len(self.league_rosters)):
+            self.league_rosters[i].h2h_record = f"{11-i} - {i}"
+        return self
+    
+    @property
+    def advanced_df(self):
+        self.get_h2h_record
+        advanced_df = pd.DataFrame(columns=["Team", "H2H", "Manager Eff"])
         for roster in self.league_rosters:
-            row = [roster.team_name, roster.pf_rank, "TBD", "TBD", "Nick"]
+            row = [roster.team_name, roster.h2h_record, "Nick"]
             advanced_df.loc[len(advanced_df)] = row
         return advanced_df
 
