@@ -237,7 +237,7 @@ class League:
         self.get_pf_rankings
         advanced_df = pd.DataFrame(columns=["Team", "PF Rank", "PA Rank", "H2H", "Manager Eff"])
         for roster in self.league_rosters:
-            row = [roster.team_name, roster.pf_rank, "TBD", "TBD", "TBD"]
+            row = [roster.team_name, roster.pf_rank, "TBD", "TBD", "Nick"]
             advanced_df.loc[len(advanced_df)] = row
         return advanced_df
 
