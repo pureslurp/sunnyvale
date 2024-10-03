@@ -46,14 +46,14 @@ st.markdown("- PF Rank: Points scored compared to other teams \n - PA Rank: Poin
 rosters = []
 
 for i in range(1,7):
-    try:
-        matchup = convert_detailed_matchup_to_df(week, i)
-        print(matchup)
-        rosters.append(matchup.team1_roster)
-        rosters.append(matchup.team2_roster)
-    except:
-        st.write("Issue grabbing matchup data, contact Nick Balavich")
-        continue
+    # try:
+    matchup = convert_detailed_matchup_to_df(week, i)
+    print(matchup)
+    rosters.append(matchup.team1_roster)
+    rosters.append(matchup.team2_roster)
+    # except:
+    #     st.write("Issue grabbing matchup data, contact Nick Balavich")
+    #     continue
 
 league = League(rosters)
 df = league.advanced_df
