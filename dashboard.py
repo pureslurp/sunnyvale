@@ -44,14 +44,11 @@ else:
 st.subheader("Advanced Analytics")
 st.markdown("- PF Rank: Points scored compared to other teams \n - PA Rank: Points against compared to other teams \n - H2H: Record if you played every person this week \n - Manager Efficiency: TODO")
 
-#team_list = get_teams_from_league_summary(league_summary)
 rosters = []
-#stats_dict: dict[str, list] = dict.fromkeys(team_list)
 
 for i in range(1,7):
     try:
         matchup = convert_detailed_matchup_to_df(week, i)
-        print(matchup)
         rosters.append(matchup.team1_roster)
         rosters.append(matchup.team2_roster)
     except:
@@ -59,7 +56,6 @@ for i in range(1,7):
         continue
 
 league = League(rosters)
-# league.get_pf_rankings
 df = league.advanced_df
 st.write(df)
 
