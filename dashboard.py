@@ -37,7 +37,8 @@ if week == "All":
     st.write("League Summary for 'All' weeks coming soon. For now, select a week in the left pane")
     pass
 else:
-    st.subheader(f"League Summary -- Week {week}")
+    st.subheader(f"Week {week}", divider=True)
+    st.subheader("League Summary")
     league_summary = convert_league_matchup_table_to_df(week)
     st.write(league_summary)
 
