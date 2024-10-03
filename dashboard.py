@@ -1,5 +1,5 @@
 import streamlit as st
-from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, League
+from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, Week
 
 def get_teams_from_league_summary(league_summary):
     left_teams = league_summary["Team1"].tolist()
@@ -34,6 +34,7 @@ except:
 if week == "All":
     st.subheader("League Summary")
     #stuff here
+
     st.write("League Summary for 'All' weeks coming soon. For now, select a week in the left pane")
     pass
 else:
@@ -49,18 +50,15 @@ else:
         #stuff here
         pass
     else:
-        rosters = []
+        matchups = []
         for i in range(1,7):
             try:
-                matchup = convert_detailed_matchup_to_df(week, i)
-                print(matchup)
-                rosters.append(matchup.team1_roster)
-                rosters.append(matchup.team2_roster)
+                matchups.append(convert_detailed_matchup_to_df(week, i))
             except:
                 st.write("Issue grabbing matchup data, contact Nick Balavich")
                 break
 
-        league = League(rosters)
+        league = Week(matchups, week)
         df = league.advanced_df
         st.write(df)
 

@@ -106,96 +106,21 @@ class MatchUp:
         return self.team1_roster.team_name if self.team1_roster.starting_points > self.team2_roster.starting_points else self.team2_roster.team_name
     
     @property
-    def dataframe_for_csv(self):
-        columns = [self.team1_roster.team_name, "Position", "Fan Pts", "Roster Position", "Fan Pts.1", "Position.1", self.team2_roster.team_name]
-        starting_matchup_df = pd.DataFrame(columns=columns)
-        bench_matchup_df = pd.DataFrame(columns=columns)
-        roster_positions = ["QB", "WR", "WR", "RB", "RB", "W/R/T", "W/R/T", "TE", "DEF", "Total"]
-        for pos in range(len(roster_positions)):
-            if roster_positions[pos] == "Total":
-                row = [None, None, self.team1_roster.starting_points, roster_positions[pos], self.team2_roster.starting_points, None, None]
-            else:
-                team_1_player = list(self.team1_roster.roster.values())[pos]
-                team_2_player = list(self.team2_roster.roster.values())[pos]
-                row = [team_1_player.name, team_1_player.position, team_1_player.fan_pts, roster_positions[pos], team_2_player.fan_pts, team_2_player.position, team_2_player.name]
-            starting_matchup_df.loc[len(starting_matchup_df)] = row
-        for i in range(8):
-            team_1_player = list(self.team1_roster.roster.values())[i+9]
-            team_2_player = list(self.team2_roster.roster.values())[i+9]
-            row = [team_1_player.name, team_1_player.position, team_1_player.fan_pts, roster_positions[pos], team_2_player.fan_pts, team_2_player.position, team_2_player.name]
-            bench_matchup_df.loc[len(bench_matchup_df)] = row
-        bench_matchup_df.loc[len(bench_matchup_df)] = [None, None, self.team1_roster.bench_points, "Total", self.team2_roster.bench_points, None, None]
-        combined_df = pd.concat([starting_matchup_df, bench_matchup_df], ignore_index=True)
-        return combined_df
-
-class Roster:
-    '''A given teams Roster and their stats for a particular week, constructed from html'''
-    def __init__(self, team_name: str, starting_df: pd.DataFrame, bench_df: pd.DataFrame):
-        '''df's column must be in the following order:
-        |Player|Proj|Fan Pts|
-        '''
-        roster_key = {
-            "QB" : 0,
-            "WR1" : 1,
-            "WR2" : 2,
-            "RB1" : 3,
-            "RB2" : 4,
-            "TE" : 5,
-            "FLEX1" : 6,
-            "FLEX2" : 7,
-            "DEF" : 8,
-            "BN1" : 0,
-            "BN2" : 1,
-            "BN3" : 2,
-            "BN4" : 3,
-            "BN5" : 4,
-            "BN6" : 5,
-            "BN7" : 6,
-            "BN8" : 7
-        }
-        self.roster: dict[str, Player] = dict.fromkeys(list(roster_key.keys()))
-        for k, v in roster_key.items():
-            # (TODO) This is sketchy, there has to be a better way to do this...
-            try:
-                self.roster[k] = Player(name_position_team=starting_df.iloc[v,0], fan_pts=starting_df.iloc[v,2], proj_pts=starting_df.iloc[v,1])
-            except:
-                self.roster[k] = Player(name_position_team=bench_df.iloc[v,0], fan_pts=bench_df.iloc[v,2], proj_pts=bench_df.iloc[v,1])
-        self.team_name = team_name
+    def teams(self):
+        return [self.team1_roster.team_name, self.team2_roster.team_name]
     
-    @property
-    def starting_points(self):
-        starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
-        total = 0
-        for pos in starting_lineup:
-            total += self.roster[pos].fan_pts
-        return total
+    def points_against(self, team):
+        if team == self.team1_roster.team_name:
+            return self.team2_roster.starting_points
+        else:
+            return self.team1_roster.starting_points
+        
+    def points_for(self, team):
+        if team == self.team1_roster.team_name:
+            return self.team1_roster.starting_points
+        else:
+            return self.team2_roster.starting_points
 
-    @property
-    def bench_points(self):
-        bench_lineup = ["BN1", "BN2", "BN3", "BN4", "BN5", "BN6", "BN7", "BN8"]
-        total = 0
-        for pos in bench_lineup:
-            total += self.roster[pos].fan_pts
-        return total
-    
-    def manager_eff(self):
-        # NICK THIS IS WHERE YOU WORK YOUR MAGIC
-        return
-
-    def __str__(self):
-        for key in self.roster:
-            print(self.roster[key])
-        return
-
-class MatchUp:
-    def __init__(self, team1_roster: Roster, team2_roster: Roster):
-        self.team1_roster = team1_roster
-        self.team2_roster = team2_roster
-    
-    @property
-    def winner(self):
-        return self.team1_roster.team_name if self.team1_roster.starting_points > self.team2_roster.starting_points else self.team2_roster.team_name
-    
     @property
     def dataframe_for_csv(self):
         columns = [self.team1_roster.team_name, "Position", "Fan Pts", "Roster Position", "Fan Pts.1", "Position.1", self.team2_roster.team_name]
@@ -219,11 +144,27 @@ class MatchUp:
         combined_df = pd.concat([starting_matchup_df, bench_matchup_df], ignore_index=True)
         return combined_df
     
-class League:
-    '''A class that stores league data for a given week'''
-    def __init__(self, league_rosters:list[Roster]):
-        self.league_rosters = league_rosters
+class Week:
+    '''A class that stores league matchups for a given week'''
+    def __init__(self, league_matchups:list[MatchUp], week: int):
+        self.league_matchups: list[MatchUp] = league_matchups
+        self.league_roster: list[Roster] = self.flatten_matchups(league_matchups)
     
+    @property
+    def flatten_matchups(self) -> list[Roster]:
+        roster_list = []
+        for matchup in self.league_matchups:
+            roster_list.append(matchup.team1_roster)
+            roster_list.append(matchup.team2_roster)
+        return roster_list
+
+    @property
+    def league_teams(self):
+        teams = []
+        for roster in self.league_rosters:
+            teams.append(roster.team_name)
+        return teams
+
     @property
     def get_pf_rankings(self):
         def _get_score(roster: Roster):
@@ -248,6 +189,47 @@ class League:
             row = [roster.team_name, roster.h2h_record, "Nick"]
             advanced_df.loc[len(advanced_df)] = row
         return advanced_df
+    
+    @property
+    def winners(self):
+        winners = []
+        for matchup in self.league_matchups:
+            winners.append(matchup.winner)
+        return winners
+
+class Season:
+    def __init__(self, season_summary: list[Week]):
+        self.season_summary = season_summary
+
+    def season_summary_df(self):
+        # (TODO) There has to be a better way to do this...
+        teams = self.season_summary[0].league_teams
+        for team in teams:
+            w = 0
+            l = 0
+            pf = 0
+            pa = 0
+            h2hw = 0
+            h2hl = 0
+            manager_eff = "Nick"
+            
+
+
+            for i in range(len(self.season_summary)):
+                # if team in self.season_summary[i].winners:
+                #     w += 1
+                # # rosters = self.season_summary[i].flatten_matchups
+                for matchup in self.season_summary[i].league_matchups:
+                    if team in matchup.teams:
+                        pa += matchup.points_against(team)
+                        pf += matchup.points_for(team)
+                        if matchup.winner == team:
+                            w += 1 
+                        else:
+                            l += 1
+
+
+                
 
 def convert_league_matchup_table_to_df(week):
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
@@ -298,7 +280,6 @@ def extract_team(text):
         return text[-3:].upper()
     else:
         return None
-
 
 def clean_matchup_df(df):
     '''cleans up the Yahoo html table by removing unneeded columns and linting player data'''
