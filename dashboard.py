@@ -1,6 +1,5 @@
 import streamlit as st
 from matchup_data.convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, League
-import pandas as pd
 
 
 def get_teams_from_league_summary(league_summary):
