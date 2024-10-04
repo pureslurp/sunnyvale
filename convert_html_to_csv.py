@@ -237,12 +237,41 @@ class Season:
                           "Points For" : pf_list})
         return df
             
+    def get_power_rankings(self):
+        '''
+        attributes
+        - PF = 1st (4pts * 11)
+        - H2H Wins = (2nd 3pts * 11)
+        - Floor = 4th (1pt * 11)
+        - Ceiling = 3rd (2pts * 11)
+        '''
+
     def get_position_rank(self, position):
         df = self.get_pf_data_for_boxplot_df(position)
         df = df.groupby("Team").mean()
         df = df.reset_index()
         df[f"{position} Rank"] = df["Points For"].rank(ascending=False)
         return df[["Team", f"{position} Rank"]]
+
+    @property
+    def get_pf_season_rank(self):
+        df = self.season_summary_df
+        df = df[["Team", "PF"]]
+        df["PF Rank"] = df["PF"].rank(ascending=False)
+        return df[["Team", "PF Rank"]]
+    
+    @property
+    def get_pf_ceiling_and_floor(self):
+        return_df = pd.DataFrame(columns=["Team", "Ceiling", "Floor"])
+        df = self.get_pf_data_for_boxplot_df()
+        df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
+        print(df.head())
+        # for index, row in df.iterrows():
+        #     return_df_row = [row["Team"], ]
+
+
+
+
 
     @property
     def season_summary_df(self):
