@@ -71,6 +71,19 @@ class Roster:
         self.pf_rank = None
         self.h2h_record: list[int] = [0,0]
     
+    def position_points(self, position) -> float:
+        starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
+        total = 0
+        if position == "All":
+            for pos in starting_lineup:
+                total += self.roster[pos].fan_pts
+        else:
+            for pos in starting_lineup:
+                if pos[:2] == position:
+                    total += self.roster[pos].fan_pts
+        return total
+
+    
     @property
     def starting_points(self):
         starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
@@ -206,13 +219,34 @@ class Week:
 class Season:
     def __init__(self, season_summary: list[Week]):
         self.season_summary = season_summary
+        self.teams = self.season_summary[0].league_teams
+
+    def get_pf_data_for_boxplot_df(self, position:str="All") -> pd.DataFrame:
+        team_list = []
+        pf_list = []
+        for team in self.teams:
+            for i in range(len(self.season_summary)):
+                for roster in self.season_summary[i].league_rosters:
+                    if team == roster.team_name:
+                        team_list.append(team)
+                        if position == "All":
+                            pf_list.append(roster.starting_points)
+                        else:
+                            pf_list.append(roster.position_points(position))
+
+                            
+
+        df = pd.DataFrame({"Team" : team_list,
+                          "Points For" : pf_list})
+        return df
+            
+
 
     @property
     def season_summary_df(self):
         # (TODO) There has to be a better way to do this...
         df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "Manager Eff"])
-        teams = self.season_summary[0].league_teams
-        for team in teams:
+        for team in self.teams:
             w = 0
             l = 0
             pf = 0
