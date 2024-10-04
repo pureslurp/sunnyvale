@@ -69,7 +69,7 @@ class Roster:
                 self.roster[k] = Player(name_position_team=bench_df.iloc[v,0], fan_pts=bench_df.iloc[v,2], proj_pts=bench_df.iloc[v,1])
         self.team_name = team_name
         self.pf_rank = None
-        self.h2h_record: str = ""
+        self.h2h_record: list[int] = [0,0]
     
     @property
     def starting_points(self):
@@ -120,6 +120,12 @@ class MatchUp:
             return self.team1_roster.starting_points
         else:
             return self.team2_roster.starting_points
+        
+    def h2h_record(self, team):
+        if team == self.team1_roster.team_name:
+            return self.team1_roster.h2h_record
+        else:
+            return self.team2_roster.h2h_record
 
     @property
     def dataframe_for_csv(self):
@@ -148,7 +154,7 @@ class Week:
     '''A class that stores league matchups for a given week'''
     def __init__(self, league_matchups:list[MatchUp], week: int):
         self.league_matchups: list[MatchUp] = league_matchups
-        self.league_roster: list[Roster] = self.flatten_matchups(league_matchups)
+        self.league_rosters: list[Roster] = self.flatten_matchups
     
     @property
     def flatten_matchups(self) -> list[Roster]:
@@ -178,7 +184,7 @@ class Week:
     def get_h2h_record(self):
         self.get_pf_rankings
         for i in range(len(self.league_rosters)):
-            self.league_rosters[i].h2h_record = f"{11-i} - {i}"
+            self.league_rosters[i].h2h_record = [11-i, i]
         return self
     
     @property
@@ -201,8 +207,10 @@ class Season:
     def __init__(self, season_summary: list[Week]):
         self.season_summary = season_summary
 
+    @property
     def season_summary_df(self):
         # (TODO) There has to be a better way to do this...
+        df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "Manager Eff"])
         teams = self.season_summary[0].league_teams
         for team in teams:
             w = 0
@@ -213,12 +221,8 @@ class Season:
             h2hl = 0
             manager_eff = "Nick"
             
-
-
             for i in range(len(self.season_summary)):
-                # if team in self.season_summary[i].winners:
-                #     w += 1
-                # # rosters = self.season_summary[i].flatten_matchups
+                self.season_summary[i].get_h2h_record
                 for matchup in self.season_summary[i].league_matchups:
                     if team in matchup.teams:
                         pa += matchup.points_against(team)
@@ -227,9 +231,12 @@ class Season:
                             w += 1 
                         else:
                             l += 1
-
-
-                
+                        h2h = matchup.h2h_record(team)
+                        h2hw += h2h[0]
+                        h2hl += h2h[1]
+            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", manager_eff]
+            df.loc[len(df)] = row
+        return df.sort_values(by=["Record"], ascending=False)       
 
 def convert_league_matchup_table_to_df(week):
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
@@ -280,15 +287,6 @@ def extract_team(text):
         return text[-3:].upper()
     else:
         return None
-
-def clean_matchup_df(df):
-    '''cleans up the Yahoo html table by removing unneeded columns and linting player data'''
-    df.drop(['Stats', 'Stats.1'], axis=1, inplace=True)
-    df["Position"] = df["Player"].apply(lambda x: extract_position(x))
-    df["Player"] = df["Player"].apply(lambda x: extract_player_name(x))
-    df["Position.1"] = df["Player.1"].apply(lambda x: extract_position(x))
-    df["Player.1"] = df["Player.1"].apply(lambda x: extract_player_name(x))
-    return df
 
 def convert_detailed_matchup_to_df(week, i):
     '''covert each matchup (matchup_{i}.html) to a user friendly csv table'''
