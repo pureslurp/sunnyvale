@@ -79,7 +79,7 @@ class Roster:
                 total += self.roster[pos].fan_pts
         else:
             for pos in starting_lineup:
-                if pos[:2] == position:
+                if pos[:2] == position or pos[:-1] == position:
                     total += self.roster[pos].fan_pts
         return total
 
@@ -233,14 +233,16 @@ class Season:
                             pf_list.append(roster.starting_points)
                         else:
                             pf_list.append(roster.position_points(position))
-
-                            
-
         df = pd.DataFrame({"Team" : team_list,
                           "Points For" : pf_list})
         return df
             
-
+    def get_position_rank(self, position):
+        df = self.get_pf_data_for_boxplot_df(position)
+        df = df.groupby("Team").mean()
+        df = df.reset_index()
+        df[f"{position} Rank"] = df["Points For"].rank(ascending=False)
+        return df[["Team", f"{position} Rank"]]
 
     @property
     def season_summary_df(self):
@@ -270,6 +272,15 @@ class Season:
                         h2hl += h2h[1]
             row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", manager_eff]
             df.loc[len(df)] = row
+        # CLEAN THIS UP
+        rb_rank_df = self.get_position_rank("RB")
+        wr_rank_df = self.get_position_rank("WR")
+        te_rank_df = self.get_position_rank("TE")
+        flex_rank_df = self.get_position_rank("FLEX")
+        df = pd.merge(df, rb_rank_df, how="left", on="Team")
+        df = pd.merge(df, wr_rank_df, how="left", on="Team")
+        df = pd.merge(df, te_rank_df, how="left", on="Team")
+        df = pd.merge(df, flex_rank_df, how="left", on="Team")
         return df.sort_values(by=["Record"], ascending=False)       
 
 def get_weeks(week):
