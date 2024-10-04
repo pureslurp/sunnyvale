@@ -1,5 +1,5 @@
 import streamlit as st
-from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, League
+from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, Week, Season
 
 def get_teams_from_league_summary(league_summary):
     left_teams = league_summary["Team1"].tolist()
@@ -24,18 +24,24 @@ st.markdown(md)
 # Create for Week
 st.sidebar.header("Week")
 week_list = ["All"] + [f"Week {x}" for x in range(1,5)]
-week_str = st.sidebar.selectbox("Pick your Week", week_list, index=len(week_list)-1)
+week_str = st.sidebar.selectbox("Pick your Week", week_list, index=0)
 try:    
     week = int(week_str[4:])
 except:
     week = week_str
 
+weeks: list[Week] = []
+for i in range(1,len(week_list)):
+    matchups = []
+    for j in range(1,7):
+        matchups.append(convert_detailed_matchup_to_df(i, j))
+    weeks.append(Week(matchups, week))
 
 if week == "All":
     st.subheader("League Summary")
-    #stuff here
-    st.write("League Summary for 'All' weeks coming soon. For now, select a week in the left pane")
-    pass
+    st.write("Data for all weeks shown below, select a week from the left pane to dive deeper into a specific week")
+    season = Season(weeks)
+    st.write(season.season_summary_df)
 else:
     st.subheader(f"Week {week}", divider=True)
     st.subheader("League Summary")
@@ -45,24 +51,9 @@ else:
     st.subheader("Advanced Analytics")
     st.markdown("- PF Rank: Points scored compared to other teams \n - PA Rank: Points against compared to other teams \n - H2H: Record if you played every person this week \n - Manager Efficiency: TODO")
 
-    if week == "All":
-        #stuff here
-        pass
-    else:
-        rosters = []
-        for i in range(1,7):
-            try:
-                matchup = convert_detailed_matchup_to_df(week, i)
-                print(matchup)
-                rosters.append(matchup.team1_roster)
-                rosters.append(matchup.team2_roster)
-            except:
-                st.write("Issue grabbing matchup data, contact Nick Balavich")
-                break
-
-        league = League(rosters)
-        df = league.advanced_df
-        st.write(df)
+    league = weeks[week-1]
+    df = league.advanced_df
+    st.write(df)
 
 
     
