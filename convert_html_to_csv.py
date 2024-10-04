@@ -274,6 +274,18 @@ class Season:
         df["Floor"] = df["Points For"].apply(lambda x: min(x))
         return df[["Team", "Ceiling", "Floor"]]
 
+    @property
+    def position_ranking_df(self):
+        # CLEAN THIS UP
+        rb_rank_df = self.get_position_rank("RB")
+        wr_rank_df = self.get_position_rank("WR")
+        te_rank_df = self.get_position_rank("TE")
+        flex_rank_df = self.get_position_rank("FLEX")
+        df = pd.merge(rb_rank_df, wr_rank_df, how="left", on="Team")
+        df = pd.merge(df, te_rank_df, how="left", on="Team")
+        df = pd.merge(df, flex_rank_df, how="left", on="Team")
+        return df
+
 
     @property
     def season_summary_df(self):
@@ -303,18 +315,8 @@ class Season:
                         h2hl += h2h[1]
             row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", manager_eff]
             df.loc[len(df)] = row
-        # CLEAN THIS UP
-        rb_rank_df = self.get_position_rank("RB")
-        wr_rank_df = self.get_position_rank("WR")
-        te_rank_df = self.get_position_rank("TE")
-        flex_rank_df = self.get_position_rank("FLEX")
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(df, pr_df, how="left", on="Team")
-        df = pd.merge(df, rb_rank_df, how="left", on="Team")
-        df = pd.merge(df, wr_rank_df, how="left", on="Team")
-        df = pd.merge(df, te_rank_df, how="left", on="Team")
-        df = pd.merge(df, flex_rank_df, how="left", on="Team")
-        
         return df.sort_values(by=["Record"], ascending=False)       
 
 def get_weeks(week):
