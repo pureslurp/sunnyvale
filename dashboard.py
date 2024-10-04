@@ -9,7 +9,7 @@ def get_teams_from_league_summary(league_summary):
 
 def boxplot(position="All"):
     df = season.get_pf_data_for_boxplot_df(position)
-    st.write(f"{position} Points For Boxplot")
+    st.write(f"{position} 'Points For' Boxplot")
     fig = px.box(df, x='Team', y='Points For')
     st.plotly_chart(fig, key=f"{position} Points For")
 
@@ -29,8 +29,9 @@ st.set_page_config(page_title="Sunnyvale Dashboard", page_icon=":football:", lay
 
 st.title(":football: Sunnyvale Dashboard")
 st.markdown('<style>div.block-container{padding-top:4rem;}</style>', unsafe_allow_html=True)
-md = "Welcome to the Sunnyvale Dashboard, your home for all the advanced Sunnyvale Fantasy Football advanced analytics"
+md = "Welcome to the Sunnyvale Dashboard, your home for all the Sunnyvale Fantasy Football advanced analytics"
 st.markdown(md)
+st.write("- H2H: Record if you played every person every week \n - Manager Efficiency: TODO\n - RB Rank: Average scoring of your RBs every week compared to other league members\n - WR Rank: Average scoring of your WRs every week compared to other league members\n - FLEX Rank: Average scoring of your FLEXs every week compared to other league members")
 
 # Create for Week
 st.sidebar.header("Week")
@@ -47,11 +48,14 @@ if week == "All":
     st.subheader("League Summary")
     st.write("Data for all weeks shown below, select a week from the left pane to dive deeper into a specific week")
     season = Season(weeks)
-    st.write(season.season_summary_df)
+    st.dataframe(season.season_summary_df)
+    st.subheader("Boxplots")
+    st.write("A boxplot representation of the points scored per week for a given position")
     boxplot()
     boxplot("WR")
     boxplot("RB")
     boxplot("TE")
+    boxplot("FLEX")
 else:
     st.subheader(f"Week {week}", divider=True)
     st.subheader("League Summary")
