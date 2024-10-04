@@ -237,7 +237,7 @@ class Season:
                           "Points For" : pf_list})
         return df
             
-    def get_power_rankings(self):
+    def get_power_rankings(self, df):
         '''
         attributes
         - PF = 1st (4pts * 11)
@@ -245,6 +245,19 @@ class Season:
         - Floor = 4th (1pt * 11)
         - Ceiling = 3rd (2pts * 11)
         '''
+        def _extract_h2h_wl(wl_str):
+            return wl_str.split("-")
+        df_c_f = self.get_pf_ceiling_and_floor
+        df["PF PR"] = df["PF"].rank(ascending=True) * 4
+        df_c_f["Ceiling PR"] = df_c_f["Ceiling"].rank(ascending=True) * 2
+        df_c_f["Floor PR"] = df_c_f["Floor"].rank(ascending=True)
+        df["H2H Wins"] = df["H2H"].apply(lambda x: _extract_h2h_wl(x)[0])
+        df["H2H Wins PR"] = df["H2H Wins"].rank(ascending=True) * 3
+        df = pd.merge(df, df_c_f, how="left", on="Team")
+        df = df[["Team", "PF PR", "Ceiling PR", "Floor PR", "H2H Wins PR"]]
+        df["PR Total"] = df["PF PR"] + df["Ceiling PR"] + df["Floor PR"] + df["H2H Wins PR"]
+        df["Power Ranking"] = df["PR Total"].rank(ascending=False)
+        return df[["Team", "Power Ranking"]]
 
     def get_position_rank(self, position):
         df = self.get_pf_data_for_boxplot_df(position)
@@ -252,25 +265,14 @@ class Season:
         df = df.reset_index()
         df[f"{position} Rank"] = df["Points For"].rank(ascending=False)
         return df[["Team", f"{position} Rank"]]
-
-    @property
-    def get_pf_season_rank(self):
-        df = self.season_summary_df
-        df = df[["Team", "PF"]]
-        df["PF Rank"] = df["PF"].rank(ascending=False)
-        return df[["Team", "PF Rank"]]
     
     @property
     def get_pf_ceiling_and_floor(self):
-        return_df = pd.DataFrame(columns=["Team", "Ceiling", "Floor"])
         df = self.get_pf_data_for_boxplot_df()
         df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
-        print(df.head())
-        # for index, row in df.iterrows():
-        #     return_df_row = [row["Team"], ]
-
-
-
+        df["Ceiling"] = df["Points For"].apply(lambda x: max(x))
+        df["Floor"] = df["Points For"].apply(lambda x: min(x))
+        return df[["Team", "Ceiling", "Floor"]]
 
 
     @property
@@ -306,10 +308,13 @@ class Season:
         wr_rank_df = self.get_position_rank("WR")
         te_rank_df = self.get_position_rank("TE")
         flex_rank_df = self.get_position_rank("FLEX")
+        pr_df = self.get_power_rankings(df.copy())
+        df = pd.merge(df, pr_df, how="left", on="Team")
         df = pd.merge(df, rb_rank_df, how="left", on="Team")
         df = pd.merge(df, wr_rank_df, how="left", on="Team")
         df = pd.merge(df, te_rank_df, how="left", on="Team")
         df = pd.merge(df, flex_rank_df, how="left", on="Team")
+        
         return df.sort_values(by=["Record"], ascending=False)       
 
 def get_weeks(week):
