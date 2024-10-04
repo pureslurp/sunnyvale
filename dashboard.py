@@ -31,8 +31,6 @@ st.title(":football: Sunnyvale Dashboard")
 st.markdown('<style>div.block-container{padding-top:4rem;}</style>', unsafe_allow_html=True)
 md = "Welcome to the Sunnyvale Dashboard, your home for all the Sunnyvale Fantasy Football advanced analytics"
 st.markdown(md)
-st.write("- H2H: Record if you played every person every week \n - Manager Efficiency: TODO\n - RB Rank: Average scoring of your RBs every week compared to other league members\n - WR Rank: Average scoring of your WRs every week compared to other league members\n - FLEX Rank: Average scoring of your FLEXs every week compared to other league members")
-
 # Create for Week
 st.sidebar.header("Week")
 week_list = ["All"] + [f"Week {x}" for x in range(1,5)]
@@ -45,10 +43,14 @@ except:
 weeks = load_data(len(week_list))
 
 if week == "All":
-    st.subheader("League Summary")
+    st.header("League Summary")
     st.write("Data for all weeks shown below, select a week from the left pane to dive deeper into a specific week")
+    st.write("- H2H: Record if you played every person every week \n - Manager Efficiency: TODO\n - Power Rankings: Team power rankings are based on a proprietary calculation that encompasses all the dynamics that make a great fantasy team")
     season = Season(weeks)
     st.dataframe(season.season_summary_df)
+    st.header("Position Rankings")
+    st.write("- RB Rank: Average scoring of your RBs every week compared to other league members\n - WR Rank: Average scoring of your WRs every week compared to other league members\n  - TE Rank: Average scoring of your TEs every week compared to other league members\n - FLEX Rank: Average scoring of your FLEXs every week compared to other league members")
+    st.dataframe(season.position_ranking_df)
     st.subheader("Boxplots")
     st.write("A boxplot representation of the points scored per week for a given position")
     boxplot()
