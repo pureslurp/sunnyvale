@@ -238,6 +238,15 @@ class Season:
             df.loc[len(df)] = row
         return df.sort_values(by=["Record"], ascending=False)       
 
+def get_weeks(week):
+    weeks: list[Week] = []
+    for i in range(1,week):
+        matchups = []
+        for j in range(1,7):
+            matchups.append(convert_detailed_matchup_to_df(i, j))
+        weeks.append(Week(matchups, i))
+    return weeks
+
 def convert_league_matchup_table_to_df(week):
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
     try:

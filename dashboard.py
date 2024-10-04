@@ -1,10 +1,15 @@
 import streamlit as st
-from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df, Week, Season
+from convert_html_to_csv import convert_league_matchup_table_to_df, get_weeks, Season
+import time
 
 def get_teams_from_league_summary(league_summary):
     left_teams = league_summary["Team1"].tolist()
     right_teams = league_summary["Team2"].tolist()
     return left_teams + right_teams
+
+@st.cache_data
+def load_data(number_of_weeks):
+    return get_weeks(number_of_weeks)
 
 def get_team_name(name):
     '''team members change names over the season causing mismatches in stats, this function returns the most commonly used name from a team
@@ -30,12 +35,7 @@ try:
 except:
     week = week_str
 
-weeks: list[Week] = []
-for i in range(1,len(week_list)):
-    matchups = []
-    for j in range(1,7):
-        matchups.append(convert_detailed_matchup_to_df(i, j))
-    weeks.append(Week(matchups, week))
+weeks = load_data(len(week_list))
 
 if week == "All":
     st.subheader("League Summary")
