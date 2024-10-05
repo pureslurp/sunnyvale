@@ -1,13 +1,16 @@
 import streamlit as st
 from convert_html_to_csv import convert_league_matchup_table_to_df, get_weeks, Season
 import plotly.express as px
+import pandas as pd
 
-def get_teams_from_league_summary(league_summary):
+def get_teams_from_league_summary(league_summary: pd.DataFrame):
+    '''Returns all the teams from a league dataframe'''
     left_teams = league_summary["Team1"].tolist()
     right_teams = league_summary["Team2"].tolist()
     return left_teams + right_teams
 
 def boxplot(position="All"):
+    '''Writes a boxplot to streamlit app for a given position'''
     df = season.get_pf_data_for_boxplot_df(position)
     st.write(f"{position} 'Points For' Boxplot")
     fig = px.box(df, x='Team', y='Points For')
