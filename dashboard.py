@@ -49,7 +49,7 @@ if week == "All":
     season = Season(weeks)
     st.dataframe(season.season_summary_df)
     st.header("Position Rankings")
-    st.write("- RB Rank: Average scoring of your RBs every week compared to other league members\n - WR Rank: Average scoring of your WRs every week compared to other league members\n  - TE Rank: Average scoring of your TEs every week compared to other league members\n - FLEX Rank: Average scoring of your FLEXs every week compared to other league members")
+    st.write("Scoring of each position compared to other league members")
     st.dataframe(season.position_ranking_df)
     st.subheader("Boxplots")
     st.write("A boxplot representation of the points scored per week for a given position")
