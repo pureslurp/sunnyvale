@@ -317,6 +317,10 @@ class Season:
             df.loc[len(df)] = row
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(df, pr_df, how="left", on="Team")
+        cols = list(df.columns.values)
+        front_col = cols[:-2]
+        new_cols = front_col + [cols[-1],cols[-2]]
+        df = df[new_cols]
         return df.sort_values(by=["Record"], ascending=False)       
 
 def get_weeks(week):
