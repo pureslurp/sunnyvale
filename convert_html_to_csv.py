@@ -277,13 +277,16 @@ class Season:
     @property
     def position_ranking_df(self):
         # CLEAN THIS UP
+        qb_rank_df = self.get_position_rank("QB")
         rb_rank_df = self.get_position_rank("RB")
         wr_rank_df = self.get_position_rank("WR")
         te_rank_df = self.get_position_rank("TE")
         flex_rank_df = self.get_position_rank("FLEX")
-        df = pd.merge(rb_rank_df, wr_rank_df, how="left", on="Team")
+        df = pd.merge(qb_rank_df, rb_rank_df, how="left", on="Team")
+        df = pd.merge(df, wr_rank_df, how="left", on="Team")
         df = pd.merge(df, te_rank_df, how="left", on="Team")
         df = pd.merge(df, flex_rank_df, how="left", on="Team")
+        df["Avg Rank"] = round(df[["RB Rank", "WR Rank", "TE Rank", "FLEX Rank"]].mean(axis=1),2)
         return df
 
 
