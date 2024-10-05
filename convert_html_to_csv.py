@@ -17,7 +17,8 @@ class Player:
         self.team = extract_team(name_position_team)
 
     @property
-    def is_flex(self):
+    def is_flex(self) -> bool:
+        '''Check if a Player is an eligible flex position'''
         match self.position:
             case "WR":
                 return True
@@ -30,6 +31,7 @@ class Player:
     
     @property
     def net_points(self):
+        "Calculate the Players net points"
         return self.proj_pts - self.fan_pts
     
     def __str__(self):
@@ -72,6 +74,7 @@ class Roster:
         self.h2h_record: list[int] = [0,0]
     
     def position_points(self, position) -> float:
+        '''Return the rosters starting position points based on a position'''
         starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
         total = 0
         if position == "All":
@@ -85,7 +88,8 @@ class Roster:
 
     
     @property
-    def starting_points(self):
+    def starting_points(self) -> float:
+        '''Return the rosters starting points for scored'''
         starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
         total = 0
         for pos in starting_lineup:
@@ -93,7 +97,8 @@ class Roster:
         return total
 
     @property
-    def bench_points(self):
+    def bench_points(self) -> float:
+        '''Return the rosters bench points for scored'''
         bench_lineup = ["BN1", "BN2", "BN3", "BN4", "BN5", "BN6", "BN7", "BN8"]
         total = 0
         for pos in bench_lineup:
@@ -115,33 +120,39 @@ class MatchUp:
         self.team2_roster = team2_roster
     
     @property
-    def winner(self):
+    def winner(self) -> str:
+        '''Return the winner of the Matchup'''
         return self.team1_roster.team_name if self.team1_roster.starting_points > self.team2_roster.starting_points else self.team2_roster.team_name
     
     @property
-    def teams(self):
+    def teams(self) -> list[str]:
+        '''Return the teams involved in the matchup'''
         return [self.team1_roster.team_name, self.team2_roster.team_name]
     
-    def points_against(self, team):
+    def points_against(self, team) -> float:
+        '''Returns a teams points for'''
         if team == self.team1_roster.team_name:
             return self.team2_roster.starting_points
         else:
             return self.team1_roster.starting_points
         
-    def points_for(self, team):
+    def points_for(self, team) -> float:
+        '''Returns a teams points against'''
         if team == self.team1_roster.team_name:
             return self.team1_roster.starting_points
         else:
             return self.team2_roster.starting_points
         
-    def h2h_record(self, team):
+    def h2h_record(self, team) -> list[int]:
+        '''Returns a team's head-to-head record against all Rosters'''
         if team == self.team1_roster.team_name:
             return self.team1_roster.h2h_record
         else:
             return self.team2_roster.h2h_record
 
     @property
-    def dataframe_for_csv(self):
+    def dataframe_for_csv(self) -> pd.DataFrame:
+        '''Returns a dataframe that is easily exported to a csv'''
         columns = [self.team1_roster.team_name, "Position", "Fan Pts", "Roster Position", "Fan Pts.1", "Position.1", self.team2_roster.team_name]
         starting_matchup_df = pd.DataFrame(columns=columns)
         bench_matchup_df = pd.DataFrame(columns=columns)
@@ -171,6 +182,7 @@ class Week:
     
     @property
     def flatten_matchups(self) -> list[Roster]:
+        '''Return all the Rosters flattened into a list'''
         roster_list = []
         for matchup in self.league_matchups:
             roster_list.append(matchup.team1_roster)
@@ -178,7 +190,8 @@ class Week:
         return roster_list
 
     @property
-    def league_teams(self):
+    def league_teams(self) -> list[str]:
+        '''Returns a list of teams in the league'''
         teams = []
         for roster in self.league_rosters:
             teams.append(roster.team_name)
@@ -186,6 +199,7 @@ class Week:
 
     @property
     def get_pf_rankings(self):
+        '''Populates the current object with points for rankings'''
         def _get_score(roster: Roster):
             return roster.starting_points
         self.league_rosters.sort(key=_get_score, reverse=True)
@@ -195,13 +209,15 @@ class Week:
     
     @property
     def get_h2h_record(self):
+        '''Populates the current object with h2h record'''
         self.get_pf_rankings
         for i in range(len(self.league_rosters)):
             self.league_rosters[i].h2h_record = [11-i, i]
         return self
     
     @property
-    def advanced_df(self):
+    def advanced_df(self) -> pd.DataFrame:
+        '''Returns a dataframe with head-to-head and manager efficiency data'''
         self.get_h2h_record
         advanced_df = pd.DataFrame(columns=["Team", "H2H", "Manager Eff"])
         for roster in self.league_rosters:
@@ -210,7 +226,8 @@ class Week:
         return advanced_df
     
     @property
-    def winners(self):
+    def winners(self) -> list[str]:
+        '''Returns the winners of the Week'''
         winners = []
         for matchup in self.league_matchups:
             winners.append(matchup.winner)
@@ -218,10 +235,12 @@ class Week:
 
 class Season:
     def __init__(self, season_summary: list[Week]):
+        '''Season long stats for every Roster for every Week'''
         self.season_summary = season_summary
         self.teams = self.season_summary[0].league_teams
 
     def get_pf_data_for_boxplot_df(self, position:str="All") -> pd.DataFrame:
+        '''Returns a dataframe that is easily compatible with a boxplot'''
         team_list = []
         pf_list = []
         for team in self.teams:
@@ -237,7 +256,7 @@ class Season:
                           "Points For" : pf_list})
         return df
             
-    def get_power_rankings(self, df):
+    def get_power_rankings(self, df) -> pd.DataFrame:
         '''
         attributes
         - PF = 1st (4pts * 11)
@@ -259,7 +278,8 @@ class Season:
         df["Power Ranking"] = df["PR Total"].rank(ascending=False)
         return df[["Team", "Power Ranking"]]
 
-    def get_position_rank(self, position):
+    def get_position_rank(self, position) -> pd.DataFrame:
+        '''Returns the rank a team is for a given position in the entire season'''
         df = self.get_pf_data_for_boxplot_df(position)
         df = df.groupby("Team").mean()
         df = df.reset_index()
@@ -267,7 +287,8 @@ class Season:
         return df[["Team", f"{position} Rank"]]
     
     @property
-    def get_pf_ceiling_and_floor(self):
+    def get_pf_ceiling_and_floor(self) -> pd.DataFrame:
+        '''Returns the ceiling and floor of a team for the given season'''
         df = self.get_pf_data_for_boxplot_df()
         df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
         df["Ceiling"] = df["Points For"].apply(lambda x: max(x))
@@ -275,7 +296,8 @@ class Season:
         return df[["Team", "Ceiling", "Floor"]]
 
     @property
-    def position_ranking_df(self):
+    def position_ranking_df(self) -> pd.DataFrame:
+        '''Returns a dataframe of postiion rankings'''
         # CLEAN THIS UP
         qb_rank_df = self.get_position_rank("QB")
         rb_rank_df = self.get_position_rank("RB")
@@ -291,7 +313,7 @@ class Season:
 
 
     @property
-    def season_summary_df(self):
+    def season_summary_df(self) -> pd.DataFrame:
         # (TODO) There has to be a better way to do this...
         df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "Manager Eff"])
         for team in self.teams:
@@ -326,7 +348,8 @@ class Season:
         df = df[new_cols]
         return df.sort_values(by=["Record"], ascending=False)       
 
-def get_weeks(week):
+def get_weeks(week) -> list[Week]:
+    '''Returns all the week data up to a given week'''
     weeks: list[Week] = []
     for i in range(1,week):
         matchups = []
@@ -335,7 +358,7 @@ def get_weeks(week):
         weeks.append(Week(matchups, i))
     return weeks
 
-def convert_league_matchup_table_to_df(week):
+def convert_league_matchup_table_to_df(week) -> None | pd.DataFrame:
     '''convert week{WEEK}_matchups.html to a user friendly csv that shows all the league matchups as a summary'''
     try:
         with open(F'matchup_data/week{week}/week{week}_matchups.html') as fp:
@@ -358,7 +381,7 @@ def convert_league_matchup_table_to_df(week):
         return
         
 
-def extract_position(text):
+def extract_position(text) -> str:
     '''function that extracts the position from Yahoo player html'''
     try:
         text = text.split(" - ")[1].split(" ")[0]
@@ -366,7 +389,8 @@ def extract_position(text):
         pass
     return text
 
-def extract_player_name(text):
+def extract_player_name(text) -> str:
+    '''function that extracts the player name from the Yahoo player html'''
     text = str(text).split("-")[0].strip()
     if text[-2:].upper() in team_abbrev:
         player = text[:-2]
@@ -376,7 +400,8 @@ def extract_player_name(text):
         player = text
     return player
 
-def extract_team(text):
+def extract_team(text) -> None | str:
+    '''function that extracts the team name from the Yahoo player html'''
     text = str(text).split("-")[0].strip()
     if text[-2:].upper() in team_abbrev:
         return text[-2:].upper()
@@ -385,7 +410,7 @@ def extract_team(text):
     else:
         return None
 
-def convert_detailed_matchup_to_df(week, i):
+def convert_detailed_matchup_to_df(week, i) -> None | pd.DataFrame:
     '''covert each matchup (matchup_{i}.html) to a user friendly csv table'''
     try:
         with open(F'matchup_data/week{week}/matchup_{i}.html') as fp:
