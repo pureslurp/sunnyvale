@@ -32,7 +32,7 @@ class Player:
     @property
     def net_points(self):
         "Calculate the Players net points"
-        return self.proj_pts - self.fan_pts
+        return self.fan_pts - self.proj_pts
     
     def __str__(self):
         return f"{self.name}, {self.position}, {self.team}"
@@ -105,6 +105,16 @@ class Roster:
             total += self.roster[pos].fan_pts
         return total
     
+    @property
+    def net_points(self):
+        '''Returns the net points your starting lineup scores above (or below) projected'''
+        starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
+        net = 0
+        for pos in starting_lineup:
+            net += self.roster[pos].net_points
+        return net
+
+
     def manager_eff(self):
         # NICK THIS IS WHERE YOU WORK YOUR MAGIC
         return
@@ -142,6 +152,13 @@ class MatchUp:
             return self.team1_roster.starting_points
         else:
             return self.team2_roster.starting_points
+    
+    def point_above_projected(self, team) -> float:
+        '''Returns the points scored above projected for a team in a matchup'''
+        if team == self.team1_roster.team_name:
+            return self.team1_roster.net_points
+        else:
+            return self.team2_roster.net_points
         
     def h2h_record(self, team) -> list[int]:
         '''Returns a team's head-to-head record against all Rosters'''
@@ -315,7 +332,7 @@ class Season:
     @property
     def season_summary_df(self) -> pd.DataFrame:
         # (TODO) There has to be a better way to do this...
-        df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "Manager Eff"])
+        df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "PaP", "Manager Eff"])
         for team in self.teams:
             w = 0
             l = 0
@@ -323,6 +340,7 @@ class Season:
             pa = 0
             h2hw = 0
             h2hl = 0
+            pap = 0
             manager_eff = "Nick"
             
             for i in range(len(self.season_summary)):
@@ -331,6 +349,7 @@ class Season:
                     if team in matchup.teams:
                         pa += matchup.points_against(team)
                         pf += matchup.points_for(team)
+                        pap += matchup.point_above_projected(team)
                         if matchup.winner == team:
                             w += 1 
                         else:
@@ -338,15 +357,12 @@ class Season:
                         h2h = matchup.h2h_record(team)
                         h2hw += h2h[0]
                         h2hl += h2h[1]
-            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", manager_eff]
+            pap = round(pap / len(self.season_summary), 2)
+            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", pap, manager_eff]
             df.loc[len(df)] = row
         pr_df = self.get_power_rankings(df.copy())
-        df = pd.merge(df, pr_df, how="left", on="Team")
-        cols = list(df.columns.values)
-        front_col = cols[:-2]
-        new_cols = front_col + [cols[-1],cols[-2]]
-        df = df[new_cols]
-        return df.sort_values(by=["Record"], ascending=False)       
+        df = pd.merge(pr_df, df, how="left", on="Team")
+        return df.sort_values(by=["Power Ranking"], ascending=True)       
 
 def get_weeks(week) -> list[Week]:
     '''Returns all the week data up to a given week'''
