@@ -396,7 +396,7 @@ class Season:
                         h2hw += h2h[0]
                         h2hl += h2h[1]
             pap = round(pap / len(self.season_summary), 2)
-            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", pap, man_eff]
+            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", pap, f"{round(man_eff * 100,2)}%"]
             df.loc[len(df)] = row
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(pr_df, df, how="left", on="Team")
