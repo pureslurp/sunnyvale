@@ -279,9 +279,8 @@ class Season:
         df = self.get_pf_data_for_boxplot_df()
         df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
         return df
-    
-    @property
-    def get_on_fire_teams(self):
+        
+    def get_trending_team(self, fire=True):
         '''Returns the top 3 teams that have the highest PF the last 3 weeks'''
         def _extract_last_three(pf_list):
             return sum(pf_list[-3:])
@@ -289,7 +288,10 @@ class Season:
         df["L3"] = df["Points For"].apply(lambda x: _extract_last_three(x))
         df = df.sort_values(by=["L3"], ascending=False)
         team_list = df["Team"].tolist()
-        return team_list[:3]
+        if fire:
+            return team_list[:3]
+        else:
+            return team_list[-3:]
 
             
     def get_power_rankings(self, df) -> pd.DataFrame:
@@ -300,15 +302,15 @@ class Season:
         - Floor = 4th (1pt * 11)
         - Ceiling = 3rd (2pts * 11)
         '''
-        def _remove_fire(team):
-            if team[-1] == "🔥":
+        def _remove_emoji(team):
+            if team[-1] == "🔥" or team[-1] == "❄️":
                 return team[:-1]
             else:
                 return team
         def _extract_h2h_wl(wl_str):
             return wl_str.split("-")
         df_c_f = self.get_pf_ceiling_and_floor
-        df["Team"] = df["Team"].apply(lambda x: _remove_fire(x))
+        df["Team"] = df["Team"].apply(lambda x: _remove_emoji(x))
         df["PF PR"] = df["PF"].rank(ascending=True) * 4
         df_c_f["Ceiling PR"] = df_c_f["Ceiling"].rank(ascending=True) * 2
         df_c_f["Floor PR"] = df_c_f["Floor"].rank(ascending=True)
@@ -361,8 +363,14 @@ class Season:
                 return f"{team_str}🔥"
             else:
                 return team_str
+        def _add_snowflake(team_str, on_fire_list):
+            if team_str in on_fire_list:
+                return f"{team_str}❄️"
+            else:
+                return team_str
         df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "PaP", "Manager Eff"])
-        on_fire_teams = self.get_on_fire_teams
+        on_fire_teams = self.get_trending_team(fire=True)
+        snowflake_teams = self.get_trending_team(fire=False)
         for team in self.teams:
             w = 0
             l = 0
@@ -392,6 +400,7 @@ class Season:
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(pr_df, df, how="left", on="Team")
         df["Team"] = df["Team"].apply(lambda x: _add_fire(x, on_fire_teams))
+        df["Team"] = df["Team"].apply(lambda x: _add_snowflake(x, snowflake_teams))
         return df.sort_values(by=["Power Ranking"], ascending=True)       
 
 def get_weeks(week) -> list[Week]:
