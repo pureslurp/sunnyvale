@@ -272,6 +272,25 @@ class Season:
         df = pd.DataFrame({"Team" : team_list,
                           "Points For" : pf_list})
         return df
+    
+    @property
+    def get_points_for_df(self):
+        '''Returns a df that has the columns of Team and a list of points for'''
+        df = self.get_pf_data_for_boxplot_df()
+        df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
+        return df
+    
+    @property
+    def get_on_fire_teams(self):
+        '''Returns the top 3 teams that have the highest PF the last 3 weeks'''
+        def _extract_last_three(pf_list):
+            return sum(pf_list[-3:])
+        df = self.get_points_for_df
+        df["L3"] = df["Points For"].apply(lambda x: _extract_last_three(x))
+        df = df.sort_values(by=["L3"], ascending=False)
+        team_list = df["Team"].tolist()
+        return team_list[:3]
+
             
     def get_power_rankings(self, df) -> pd.DataFrame:
         '''
@@ -281,9 +300,15 @@ class Season:
         - Floor = 4th (1pt * 11)
         - Ceiling = 3rd (2pts * 11)
         '''
+        def _remove_fire(team):
+            if team[-1] == "🔥":
+                return team[:-1]
+            else:
+                return team
         def _extract_h2h_wl(wl_str):
             return wl_str.split("-")
         df_c_f = self.get_pf_ceiling_and_floor
+        df["Team"] = df["Team"].apply(lambda x: _remove_fire(x))
         df["PF PR"] = df["PF"].rank(ascending=True) * 4
         df_c_f["Ceiling PR"] = df_c_f["Ceiling"].rank(ascending=True) * 2
         df_c_f["Floor PR"] = df_c_f["Floor"].rank(ascending=True)
@@ -306,8 +331,7 @@ class Season:
     @property
     def get_pf_ceiling_and_floor(self) -> pd.DataFrame:
         '''Returns the ceiling and floor of a team for the given season'''
-        df = self.get_pf_data_for_boxplot_df()
-        df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
+        df = self.get_points_for_df
         df["Ceiling"] = df["Points For"].apply(lambda x: max(x))
         df["Floor"] = df["Points For"].apply(lambda x: min(x))
         return df[["Team", "Ceiling", "Floor"]]
@@ -332,7 +356,13 @@ class Season:
     @property
     def season_summary_df(self) -> pd.DataFrame:
         # (TODO) There has to be a better way to do this...
+        def _add_fire(team_str, on_fire_list):
+            if team_str in on_fire_list:
+                return f"{team_str}🔥"
+            else:
+                return team_str
         df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "PaP", "Manager Eff"])
+        on_fire_teams = self.get_on_fire_teams
         for team in self.teams:
             w = 0
             l = 0
@@ -342,7 +372,6 @@ class Season:
             h2hl = 0
             pap = 0
             manager_eff = "Nick"
-            
             for i in range(len(self.season_summary)):
                 self.season_summary[i].get_h2h_record
                 for matchup in self.season_summary[i].league_matchups:
@@ -362,6 +391,7 @@ class Season:
             df.loc[len(df)] = row
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(pr_df, df, how="left", on="Team")
+        df["Team"] = df["Team"].apply(lambda x: _add_fire(x, on_fire_teams))
         return df.sort_values(by=["Power Ranking"], ascending=True)       
 
 def get_weeks(week) -> list[Week]:
@@ -390,7 +420,6 @@ def convert_league_matchup_table_to_df(week) -> None | pd.DataFrame:
             winner = team2 if team2_score > team1_score else team1
             row = [team1, team1_score, team2, team2_score, winner]
             matchup_df.loc[len(matchup_df)] = row
-        #matchup_df.to_csv(f"matchup_data/week{week}/matchup.csv")
         return matchup_df
     except:
         print("issue creating df for week ", week)
