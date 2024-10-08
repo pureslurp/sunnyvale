@@ -363,8 +363,8 @@ class Season:
                 return f"{team_str}🔥"
             else:
                 return team_str
-        def _add_snowflake(team_str, on_fire_list):
-            if team_str in on_fire_list:
+        def _add_snowflake(team_str, snowflake_list):
+            if team_str in snowflake_list:
                 return f"{team_str}❄️"
             else:
                 return team_str
