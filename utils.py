@@ -5,12 +5,12 @@ manager_eff = {
     "Im and the Gems" : 0.929,
     "Liver King III" : 0.924,
     "Miles Long" : 0.837,
-    "Flavortown" : 0.825,
+    "Flavortown" : 0.841,
     "EZ DubZ" : 0.864,
     "Njigba’s in Paris" : 0.825,
-    "Kamalas Hairy Clit" : 0.898,
+    "Kamalas Hairy Clit" : 0.897,
     "Pitter Patter" : 0.902,
-    "Gales" : 0.953,
+    "Gales" : 0.905,
     "A Nu Start" : 0.811,
     "ELC3" : 0.828
 }
