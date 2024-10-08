@@ -281,7 +281,7 @@ class Season:
         return df
         
     def get_trending_team(self, fire=True):
-        '''Returns the top 3 teams that have the highest PF the last 3 weeks'''
+        '''Returns the top 3 teams that have the highest PF the last 3 weeks if fire is True, else returns lowest 3 teams'''
         def _extract_last_three(pf_list):
             return sum(pf_list[-3:])
         df = self.get_points_for_df
