@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
-from utils import team_abbrev
+from utils import team_abbrev, manager_eff
 import argparse
 
 class Player:
@@ -379,11 +379,12 @@ class Season:
             h2hw = 0
             h2hl = 0
             pap = 0
-            manager_eff = "Nick"
+            
             for i in range(len(self.season_summary)):
                 self.season_summary[i].get_h2h_record
                 for matchup in self.season_summary[i].league_matchups:
                     if team in matchup.teams:
+                        man_eff = manager_eff[team]
                         pa += matchup.points_against(team)
                         pf += matchup.points_for(team)
                         pap += matchup.point_above_projected(team)
@@ -395,7 +396,7 @@ class Season:
                         h2hw += h2h[0]
                         h2hl += h2h[1]
             pap = round(pap / len(self.season_summary), 2)
-            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", pap, manager_eff]
+            row = [team, f"{w}-{l}", pf, pa, f"{h2hw}-{h2hl}", pap, man_eff]
             df.loc[len(df)] = row
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(pr_df, df, how="left", on="Team")
