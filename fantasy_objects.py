@@ -1,4 +1,4 @@
-from utils import extract_player_name, extract_position, extract_team
+from utils import extract_player_name, extract_position, extract_team, manager_eff
 import pandas as pd
 
 '''
