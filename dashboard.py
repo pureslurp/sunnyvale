@@ -1,7 +1,19 @@
 import streamlit as st
-from convert_html_to_csv import convert_league_matchup_table_to_df, get_weeks, Season
+from convert_html_to_csv import convert_league_matchup_table_to_df, convert_detailed_matchup_to_df
+from fantasy_objects import Season, Week
 import plotly.express as px
 import pandas as pd
+
+
+def get_weeks(week) -> list[Week]:
+    '''Returns all the week data up to a given week'''
+    weeks: list[Week] = []
+    for i in range(1,week):
+        matchups = []
+        for j in range(1,7):
+            matchups.append(convert_detailed_matchup_to_df(i, j))
+        weeks.append(Week(matchups, i))
+    return weeks
 
 def get_teams_from_league_summary(league_summary: pd.DataFrame):
     '''Returns all the teams from a league dataframe'''
