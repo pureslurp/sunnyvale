@@ -4,6 +4,17 @@ from fantasy_objects import Season, Week
 import plotly.express as px
 import pandas as pd
 
+def highlight_max(s):
+    '''
+    highlight the maximum in a  yellow.
+    '''
+    # if high_or_low == "high":
+    cond = s == s.max()
+    # elif high_or_low == "low":
+    #     cond = s == s.min()
+    # else:
+    #     raise ValueError("high_or_low should be 'high' or 'low'")
+    return ['background-color: green' if v else '' for v in cond]
 
 def get_weeks(week) -> list[Week]:
     '''Returns all the week data up to a given week'''
@@ -81,11 +92,14 @@ else:
     st.write(league_summary)
 
     st.subheader("Advanced Analytics")
-    st.markdown("- PF Rank: Points scored compared to other teams \n - PA Rank: Points against compared to other teams \n - H2H: Record if you played every person this week \n - Manager Efficiency: TODO")
+    st.markdown("- H2H: Record if you played every person this week \n - Manager Efficiency: TODO")
 
     league = weeks[week-1]
     df = league.advanced_df
-    st.write(df)
+    st.dataframe(df, hide_index=True)
+    st.subheader("Position Rankings")
+    st.write("Scoring of each position compared to other league members")
+    st.dataframe(league.get_position_ranks, hide_index=True)
 
 
     

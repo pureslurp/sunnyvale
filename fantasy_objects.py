@@ -79,7 +79,10 @@ class Roster:
         self.h2h_record: list[int] = [0,0]
     
     def position_points(self, position) -> float:
-        '''Return the rosters starting position points based on a position'''
+        '''Return the rosters starting position points based on a position
+        
+        position options: QB, WR, RB, TE, FLEX
+        '''
         starting_lineup = ["QB", "WR1", "WR2", "RB1", "RB2", "TE", "FLEX1", "FLEX2", "DEF"]
         total = 0
         if position == "All":
@@ -212,6 +215,31 @@ class Week:
         return roster_list
 
     @property
+    def get_positions_pf(self):
+        keys = ["QB", "RB", "WR", "TE", "FLEX"]
+        pos_dict = dict.fromkeys(keys)
+        columns = ["Team"] + keys
+        df = pd.DataFrame(columns=columns)
+        for roster in self.league_rosters:
+            team = roster.team_name
+            for pos in keys:
+                pts = roster.position_points(pos)
+                pos_dict[pos] = pts
+            row = [team, pos_dict["QB"], pos_dict["RB"], pos_dict["WR"], pos_dict["TE"], pos_dict["FLEX"]]
+            df.loc[len(df)] = row
+        return df
+    
+    @property
+    def get_position_ranks(self):
+        df = self.get_positions_pf
+        positions = df.columns.tolist()[1:]
+        for pos in positions:
+            df[pos] = df[pos].rank(ascending=False)
+        df["Avg Rank"] = round(df[["QB", "RB", "WR", "TE", "FLEX"]].mean(axis=1),2)
+        return df
+
+
+    @property
     def league_teams(self) -> list[str]:
         '''Returns a list of teams in the league'''
         teams = []
@@ -241,9 +269,9 @@ class Week:
     def advanced_df(self) -> pd.DataFrame:
         '''Returns a dataframe with head-to-head and manager efficiency data'''
         self.get_h2h_record
-        advanced_df = pd.DataFrame(columns=["Team", "H2H", "Manager Eff"])
+        advanced_df = pd.DataFrame(columns=["Team", "PF", "H2H", "Manager Eff"])
         for roster in self.league_rosters:
-            row = [roster.team_name, roster.h2h_record, "Nick"]
+            row = [roster.team_name, roster.starting_points, roster.h2h_record, "Nick"]
             advanced_df.loc[len(advanced_df)] = row
         return advanced_df
     
