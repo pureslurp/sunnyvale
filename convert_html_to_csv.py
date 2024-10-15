@@ -33,8 +33,12 @@ def convert_detailed_matchup_to_df(week, i) -> None | pd.DataFrame:
             soup = BeautifulSoup(fp, 'html.parser')
         matchup_header = soup.find("section", {"id": "matchup-header"})
         # (TODO) This is fragile... fix!
-        team1 = matchup_header.find_all('div')[5].text
-        team2 = matchup_header.find_all('div')[17].text
+        if week < 6:
+            team1 = matchup_header.find_all('div')[6].text
+            team2 = matchup_header.find_all('div')[19].text
+        else:
+            team1 = matchup_header.find_all('div')[5].text
+            team2 = matchup_header.find_all('div')[17].text
         matchup_df = pd.read_html(f'matchup_data/week{week}/matchup_{i}.html')
         team_1_roster = Roster(team1, matchup_df[1].iloc[:,1:4], matchup_df[2].iloc[:,1:4])
         team_2_cols = ["Player.1", "Proj.1", "Fan Pts.1"]
