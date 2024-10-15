@@ -4,18 +4,6 @@ from fantasy_objects import Season, Week
 import plotly.express as px
 import pandas as pd
 
-def highlight_max(s):
-    '''
-    highlight the maximum in a  yellow.
-    '''
-    # if high_or_low == "high":
-    cond = s == s.max()
-    # elif high_or_low == "low":
-    #     cond = s == s.min()
-    # else:
-    #     raise ValueError("high_or_low should be 'high' or 'low'")
-    return ['background-color: green' if v else '' for v in cond]
-
 def get_weeks(week) -> list[Week]:
     '''Returns all the week data up to a given week'''
     weeks: list[Week] = []
@@ -59,7 +47,7 @@ md = "Welcome to the Sunnyvale Dashboard, your home for all the Sunnyvale Fantas
 st.markdown(md)
 # Create for Week
 st.sidebar.header("Week")
-week_list = ["All"] + [f"Week {x}" for x in range(1,6)]
+week_list = ["All"] + [f"Week {x}" for x in range(1,7)]
 week_str = st.sidebar.selectbox("Pick your Week", week_list, index=0)
 try:    
     week = int(week_str[4:])
