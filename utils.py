@@ -1,18 +1,18 @@
 team_abbrev = ["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "LV", "PHI", "PIT", "LAC", "SF", "SEA", "LAR", "TB", "TEN", "WAS"]
 
 manager_eff = {
-    "Jon Gruden" : 0.858,
-    "Im and the Gems" : 0.929,
+    "Jon Gruden" : 0.86,
+    "Im and the Gems" : 0.928,
     "Liver King III" : 0.924,
-    "Miles Long" : 0.837,
-    "Flavortown" : 0.841,
-    "EZ DubZ" : 0.864,
-    "Njigba’s in Paris" : 0.825,
+    "Miles Long" : 0.863,
+    "Flavortown" : 0.85,
+    "EZ DubZ" : 0.875,
+    "Njigba’s in Paris" : 0.843,
     "Kamalas Hairy Clit" : 0.897,
-    "Pitter Patter" : 0.902,
-    "Gales" : 0.905,
-    "A Nu Start" : 0.811,
-    "ELC3" : 0.828
+    "Pitter Patter" : 0.861,
+    "Gales" : 0.909,
+    "A Nu Start" : 0.8,
+    "ELC3" : 0.82
 }
 
 def extract_position(text) -> str:
