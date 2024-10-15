@@ -12,7 +12,7 @@ def convert_league_matchup_table_to_df(week) -> None | pd.DataFrame:
 
         matchup_df = pd.DataFrame(columns=["Team1", "Team1 Score", "Team2", "Team2 Score", "Winner"])
         matchup_data = soup.find_all('li')
-        for i in range(5):
+        for i in range(6):
             team1 = matchup_data[i].find_all('a')[1].text
             team1_score = float(matchup_data[i].find_all('div')[11].text)
             team2 = matchup_data[i].find_all('a')[4].text
