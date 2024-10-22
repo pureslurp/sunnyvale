@@ -47,7 +47,7 @@ md = "Welcome to the Sunnyvale Dashboard, your home for all the Sunnyvale Fantas
 st.markdown(md)
 # Create for Week
 st.sidebar.header("Week")
-week_list = ["All"] + [f"Week {x}" for x in range(1,7)]
+week_list = ["All"] + [f"Week {x}" for x in range(1,8)]
 week_str = st.sidebar.selectbox("Pick your Week", week_list, index=0)
 try:    
     week = int(week_str[4:])
