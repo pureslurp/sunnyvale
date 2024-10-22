@@ -341,14 +341,14 @@ class Season:
             else:
                 return team
         def _extract_h2h_wl(wl_str):
-            return wl_str.split("-")
+            return int(wl_str.split("-")[0])
         df_c_f = self.get_pf_ceiling_and_floor
         df["Team"] = df["Team"].apply(lambda x: _remove_emoji(x))
-        df["PF PR"] = df["PF"].rank(ascending=True) * 4
-        df_c_f["Ceiling PR"] = df_c_f["Ceiling"].rank(ascending=True) * 2
-        df_c_f["Floor PR"] = df_c_f["Floor"].rank(ascending=True)
-        df["H2H Wins"] = df["H2H"].apply(lambda x: _extract_h2h_wl(x)[0])
-        df["H2H Wins PR"] = df["H2H Wins"].rank(ascending=True) * 3
+        df["PF PR"] = df["PF"] / max(df["PF"]) * 12 * 4
+        df_c_f["Ceiling PR"] = df_c_f["Ceiling"] / max(df_c_f["Ceiling"]) * 12 * 2
+        df_c_f["Floor PR"] = df_c_f["Floor"] / max(df_c_f["Floor"]) * 12
+        df["H2H Wins"] = df["H2H"].apply(lambda x: _extract_h2h_wl(x))
+        df["H2H Wins PR"] = df["H2H Wins"] / max(df["H2H Wins"]) * 12 * 3
         df = pd.merge(df, df_c_f, how="left", on="Team")
         df = df[["Team", "PF PR", "Ceiling PR", "Floor PR", "H2H Wins PR"]]
         df["PR Total"] = df["PF PR"] + df["Ceiling PR"] + df["Floor PR"] + df["H2H Wins PR"]
