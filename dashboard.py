@@ -64,7 +64,7 @@ if week == "All":
     st.write("- **H2H**: Record if you played every person every week \n - **Power Rankings**: Team power rankings are based on a proprietary calculation that encompasses all the dynamics that make a great fantasy team \n - **PaP**: The average Points above Projected a team scores every week\n - **Manager Efficiency**: The potential points you could have scored if you would have played the best players every week divided by what you actually scored")
     season = Season(weeks)
     st.dataframe(season.season_summary_df, hide_index=True)
-    st.caption(":fire: / :snowflake:: One of the three top/lowest scorers the last three weeks")
+    st.caption("- :fire: / :snowflake:: One of the three top/lowest scorers the last three weeks\n - -p: in playoffs if season ended today")
     st.header("Position Rankings")
     st.write("Scoring of each position compared to other league members")
     st.dataframe(season.position_ranking_df, hide_index=True)
