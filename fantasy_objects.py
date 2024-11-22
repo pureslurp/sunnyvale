@@ -371,6 +371,36 @@ class Season:
         df["Floor"] = df["Points For"].apply(lambda x: min(x))
         return df[["Team", "Ceiling", "Floor"]]
 
+    def playoff_teams(self, summary: pd.DataFrame):
+        '''returns a list of current playoff teams'''
+        def _split(value, by, pos):
+            return value.split(by)[pos]
+        df = summary[["Team", "Record", "PF"]]
+        df["w"] = df["Record"].apply(lambda x: _split(x, "-", 0))
+        df["l"] = df["Record"].apply(lambda x: _split(x, "-", 1))
+        df = df.sort_values(by="w", ascending=False)
+        # check for ties
+        if df.iloc[3]['w'] == df.iloc[4]['w']:
+            if df.iloc[4]['w'] == df.iloc[5]['w']:
+                if df.iloc[5]['w'] == df.iloc[6]['w']:
+                    df = df.head(7)
+                else:
+                    df = df.head(6)
+            else:
+                df = df.head(5)
+        else:
+            df = df.head(4)
+
+        tie_teams_low = df[df["w"] == df['w'].min()]
+        other = df[df["w"] != df['w'].min()]
+        remaining_spots = 4 - len(other)
+        tie_teams_low = tie_teams_low.sort_values(by="PF", ascending=False)
+        tie_teams_low = tie_teams_low.head(remaining_spots)
+        df = pd.concat([other, tie_teams_low])
+
+        return df['Team'].tolist()
+
+    
     @property
     def position_ranking_df(self) -> pd.DataFrame:
         '''Returns a dataframe of postiion rankings'''
@@ -399,6 +429,11 @@ class Season:
         def _add_snowflake(team_str, snowflake_list):
             if team_str in snowflake_list:
                 return f"{team_str}❄️"
+            else:
+                return team_str
+        def _playoffs(team_str, playoff_list):
+            if team_str in playoff_list:
+                return f"{team_str} -p"
             else:
                 return team_str
         df = pd.DataFrame(columns=["Team", "Record", "PF", "PA", "H2H", "PaP", "Manager Eff"])
@@ -435,4 +470,5 @@ class Season:
         df = pd.merge(pr_df, df, how="left", on="Team")
         df["Team"] = df["Team"].apply(lambda x: _add_fire(x, on_fire_teams))
         df["Team"] = df["Team"].apply(lambda x: _add_snowflake(x, snowflake_teams))
+        df["Team"] = df["Team"].apply(lambda x: _playoffs(x, self.playoff_teams(df)))
         return df.sort_values(by=["Power Ranking"], ascending=True)       
