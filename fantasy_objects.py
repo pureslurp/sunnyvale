@@ -1,4 +1,4 @@
-from utils import extract_player_name, extract_position, extract_team, manager_eff
+from utils import extract_player_name, extract_position, extract_team, manager_eff, schedule
 import pandas as pd
 
 '''
@@ -417,7 +417,25 @@ class Season:
         df["Avg Rank"] = round(df[["RB Rank", "WR Rank", "TE Rank", "FLEX Rank"]].mean(axis=1),2)
         return df
 
-
+    def get_projected_record(self, df: pd.DataFrame, remaining_games = 3):
+        def _extract_wins(wl_string):
+            return int(wl_string.split("-")[0])
+        def _extract_losses(wl_string):
+            return int(wl_string.split("-")[1])
+        df["proj w"] = df["Record"].apply(lambda x: _extract_wins(x))
+        df["proj l"] = df["Record"].apply(lambda x: _extract_losses(x))
+        for week in schedule.values():
+            for matchup in week:
+                if int(df[df['Team'] == matchup[0]]["Power Ranking"]) > int(df[df['Team'] == matchup[1]]["Power Ranking"]):
+                    df.loc[df["Team"] == matchup[0], "proj l"] += 1
+                    df.loc[df["Team"] == matchup[1], "proj w"] += 1
+                else:
+                    df.loc[df["Team"] == matchup[0], "proj w"] += 1
+                    df.loc[df["Team"] == matchup[1], "proj l"] += 1
+        df['Proj Record'] = [f"{a}-{b}" for a, b in zip(df["proj w"], df["proj l"])]
+        df.drop(["proj w", "proj l"], axis=1, inplace=True)
+        return df
+    
     @property
     def season_summary_df(self) -> pd.DataFrame:
         # (TODO) There has to be a better way to do this...
@@ -468,7 +486,7 @@ class Season:
             df.loc[len(df)] = row
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(pr_df, df, how="left", on="Team")
+        df = self.get_projected_record(df)
         df["Team"] = df["Team"].apply(lambda x: _add_fire(x, on_fire_teams))
         df["Team"] = df["Team"].apply(lambda x: _add_snowflake(x, snowflake_teams))
-        df["Team"] = df["Team"].apply(lambda x: _playoffs(x, self.playoff_teams(df)))
         return df.sort_values(by=["Power Ranking"], ascending=True)       
