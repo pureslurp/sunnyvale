@@ -1,18 +1,18 @@
 team_abbrev = ["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "LV", "PHI", "PIT", "LAC", "SF", "SEA", "LAR", "TB", "TEN", "WAS"]
 
 manager_eff = {
-    "Jon Gruden" : 0.852,
-    "Im and the Gems" : 0.929,
-    "Liver King III" : 0.898,
-    "Miles Long" : 0.882,
-    "Flavortown" : 0.85,
-    "EZ DubZ" : 0.847,
-    "Njigba’s in Paris" : 0.822,
-    "Kamalas Hairy Clit" : 0.872,
-    "Pitter Patter" : 0.882,
-    "Gales" : 0.903,
-    "A Nu Start" : 0.823,
-    "ELC3" : 0.857
+    "Jon Gruden" : 0.863,
+    "Im and the Gems" : 0.927,
+    "Liver King III" : 0.893,
+    "Miles Long" : 0.871,
+    "Flavortown" : 0.827,
+    "EZ DubZ" : 0.862,
+    "Njigba’s in Paris" : 0.839,
+    "Kamalas Hairy Clit" : 0.839,
+    "Pitter Patter" : 0.891,
+    "Gales" : 0.916,
+    "A Nu Start" : 0.834,
+    "ELC3" : 0.869
 }
 
 schedule = {
