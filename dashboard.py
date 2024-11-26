@@ -61,7 +61,7 @@ weeks = load_data(len(week_list))
 if week == "All":
     st.header("League Summary")
     st.write("Data for all weeks shown below, select a week from the left pane to dive deeper into a specific week")
-    st.write("- **H2H**: Record if you played every person every week \n - **Power Rankings**: Team power rankings are based on a proprietary calculation that encompasses all the dynamics that make a great fantasy team \n - **PaP**: The average Points above Projected a team scores every week\n - **Manager Efficiency**: The potential points you could have scored if you would have played the best players every week divided by what you actually scored")
+    st.write("- **H2H**: Record if you played every person every week \n - **Power Rankings**: Team power rankings are based on a proprietary calculation that encompasses all the dynamics that make a great fantasy team \n - **PaP**: The average Points above Projected a team scores every week\n - **Manager Efficiency**: What you scored divided by the potential points you could have scored if you would have played the best players every week\n - **Proj Record**: Your record based on your power ranking and the remaining schedule")
     season = Season(weeks)
     st.dataframe(season.season_summary_df, hide_index=True)
     st.caption("- :fire: / :snowflake:: One of the three top/lowest scorers the last three weeks\n - -p: in playoffs if season ended today")

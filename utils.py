@@ -16,19 +16,19 @@ manager_eff = {
 }
 
 schedule = {
-    'week13' : [['Im And The Gems', 'Miles Long'],
+    'week13' : [['Im and the Gems', 'Miles Long'],
                 ['EZ DubZ', 'Pitter Patter'],
                 ['Jon Gruden', 'ELC3'],
                 ['A Nu Start', 'Gales'],
                 ['Flavortown', "Njigba’s in Paris"],
                 ['Kamalas Hairy Clit', "Liver King III"]],
-    'week14' : [['Im And The Gems', "Jon Gruden"],
+    'week14' : [['Im and the Gems', "Jon Gruden"],
                 ['EZ DubZ', "Njigba’s in Paris"],
                 ['A Nu Start', 'Kamalas Hairy Clit'],
                 ['Miles Long', 'Liver King III'],
                 ['Flavortown', "Gales"],
                 ['Pitter Patter', 'ELC3']],
-    'week15' : [["Im And The Gems", "Liver King III"],
+    'week15' : [["Im and the Gems", "Liver King III"],
                 ['EZ DubZ', 'Gales'],
                 ['Jon Gruden', 'Pitter Patter'],
                 ['A Nu Start', 'Miles Long'],
