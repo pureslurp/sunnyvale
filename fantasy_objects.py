@@ -306,18 +306,23 @@ class Season:
                           "Points For" : pf_list})
         return df
     
-    @property
-    def get_points_for_df(self):
+    def get_points_for_df(self, last_n=None):
         '''Returns a df that has the columns of Team and a list of points for'''
+        def _last_n_sum(list, l_n):
+            return list[-l_n:]
         df = self.get_pf_data_for_boxplot_df()
         df = df.groupby('Team')['Points For'].apply(list).reset_index(name='Points For')
-        return df
+        if last_n is None:
+            return df
+        else:
+            df["Points For"] = df["Points For"].apply(lambda x: _last_n_sum(x, last_n))
+            return df
         
     def get_trending_team(self, fire=True):
         '''Returns the top 3 teams that have the highest PF the last 3 weeks if fire is True, else returns lowest 3 teams'''
         def _extract_last_three(pf_list):
             return sum(pf_list[-3:])
-        df = self.get_points_for_df
+        df = self.get_points_for_df()
         df["L3"] = df["Points For"].apply(lambda x: _extract_last_three(x))
         df = df.sort_values(by=["L3"], ascending=False)
         team_list = df["Team"].tolist()
@@ -342,8 +347,10 @@ class Season:
                 return team
         def _extract_h2h_wl(wl_str):
             return int(wl_str.split("-")[0])
-        df_c_f = self.get_pf_ceiling_and_floor
+        df_c_f = self.get_pf_ceiling_and_floor(last_n=5)
         df["Team"] = df["Team"].apply(lambda x: _remove_emoji(x))
+        pf = self.get_points_for_df(last_n=5)
+        df["PF"] = pf["Points For"].apply(lambda x: sum(x))
         df["PF PR"] = df["PF"] / max(df["PF"]) * 12 * 4
         df_c_f["Ceiling PR"] = df_c_f["Ceiling"] / max(df_c_f["Ceiling"]) * 12 * 2
         df_c_f["Floor PR"] = df_c_f["Floor"] / max(df_c_f["Floor"]) * 12
@@ -363,10 +370,9 @@ class Season:
         df[f"{position} Rank"] = df["Points For"].rank(ascending=False)
         return df[["Team", f"{position} Rank"]]
     
-    @property
-    def get_pf_ceiling_and_floor(self) -> pd.DataFrame:
+    def get_pf_ceiling_and_floor(self, last_n=None) -> pd.DataFrame:
         '''Returns the ceiling and floor of a team for the given season'''
-        df = self.get_points_for_df
+        df = self.get_points_for_df(last_n=last_n)
         df["Ceiling"] = df["Points For"].apply(lambda x: max(x))
         df["Floor"] = df["Points For"].apply(lambda x: min(x))
         return df[["Team", "Ceiling", "Floor"]]
