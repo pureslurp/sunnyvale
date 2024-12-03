@@ -495,5 +495,5 @@ class Season:
         df = self.get_projected_record(df)
         df["Team"] = df["Team"].apply(lambda x: _add_fire(x, on_fire_teams))
         df["Team"] = df["Team"].apply(lambda x: _add_snowflake(x, snowflake_teams))
-        df["Team"] = df["Team"].apply(lambda x: _playoffs(x, self.playoff_teams(df)))
+        # df["Team"] = df["Team"].apply(lambda x: _playoffs(x, self.playoff_teams(df)))
         return df.sort_values(by=["Power Ranking"], ascending=True)       
