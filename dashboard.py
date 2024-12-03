@@ -4,7 +4,7 @@ from fantasy_objects import Season, Week
 import plotly.express as px
 import pandas as pd
 
-WEEK = 12
+WEEK = 13
 
 def get_weeks(week) -> list[Week]:
     '''Returns all the week data up to a given week'''
