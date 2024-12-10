@@ -4,7 +4,7 @@ from fantasy_objects import Season, Week
 import plotly.express as px
 import pandas as pd
 
-WEEK = 13
+WEEK = 14
 
 def get_weeks(week) -> list[Week]:
     '''Returns all the week data up to a given week'''
@@ -64,7 +64,7 @@ if week == "All":
     st.write("- **H2H**: Record if you played every person every week \n - **Power Rankings**: Team power rankings are based on a proprietary calculation that encompasses all the dynamics that make a great fantasy team \n - **PaP**: The average Points above Projected a team scores every week\n - **Manager Efficiency**: What you scored divided by the potential points you could have scored if you would have played the best players every week\n - **Proj Record**: Your record based on your power ranking and the remaining schedule")
     season = Season(weeks)
     st.dataframe(season.season_summary_df, hide_index=True)
-    st.caption("- :fire: / :snowflake:: One of the three top/lowest scorers the last three weeks\n - -p: in playoffs if season ended today")
+    st.caption("- :fire: / :snowflake:: One of the three top/lowest scorers the last three weeks\n - -p: clinched playoffs")
     st.header("Position Rankings")
     st.write("Scoring of each position compared to other league members")
     st.dataframe(season.position_ranking_df, hide_index=True)
