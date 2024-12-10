@@ -493,7 +493,7 @@ class Season:
         pr_df = self.get_power_rankings(df.copy())
         df = pd.merge(pr_df, df, how="left", on="Team")
         df = self.get_projected_record(df)
+        df["Team"] = df["Team"].apply(lambda x: _playoffs(x, ['Pitter Patter']))
         df["Team"] = df["Team"].apply(lambda x: _add_fire(x, on_fire_teams))
         df["Team"] = df["Team"].apply(lambda x: _add_snowflake(x, snowflake_teams))
-        # df["Team"] = df["Team"].apply(lambda x: _playoffs(x, self.playoff_teams(df)))
         return df.sort_values(by=["Power Ranking"], ascending=True)       

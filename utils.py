@@ -16,12 +16,6 @@ manager_eff = {
 }
 
 schedule = {
-    'week14' : [['Im and the Gems', "Jon Gruden"],
-                ['EZ DubZ', "Njigba’s in Paris"],
-                ['A Nu Start', 'Kamalas Hairy Clit'],
-                ['Miles Long', 'Liver King III'],
-                ['Flavortown', "Gales"],
-                ['Pitter Patter', 'ELC3']],
     'week15' : [["Im and the Gems", "Liver King III"],
                 ['EZ DubZ', 'Gales'],
                 ['Jon Gruden', 'Pitter Patter'],
